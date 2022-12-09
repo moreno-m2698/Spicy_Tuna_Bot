@@ -1,0 +1,11 @@
+{
+    "scissors, paper": "W",
+    "scissors, scissors": "T",
+    "scissors, rock": "L",
+    "paper, paper": "T",
+    "paper, scissors": "L",
+    "paper, rock": "W",
+    "rock, paper": "L",
+    "rock, scissors": "W",
+    "rock, rock": "T"
+}
