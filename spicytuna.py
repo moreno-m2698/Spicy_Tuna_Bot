@@ -69,7 +69,7 @@ async def rps(called_channel, player_hand):
         roshamboFile = open('roshambo.json')
         game_result_dict = json.load(roshamboFile)
         game_result = game_result_dict[f'{player_hand}, {bot_hand}']
-        await called_channel.send(f"UwU I played {bot_hand}~")
+        await called_channel.send(f"BOT MOVE - {bot_hand}")
         game_result_strings = {"W": "congrats", "T": "Tied", "L": "Better next time."}
 
 
@@ -88,7 +88,7 @@ async def test(called_channel, arg):
 @bot.command()
 async def hello(called_channel):
 
-    await called_channel.send(f"Hi {called_channel.author.name}-nii!~")
+    await called_channel.send(f"Hi {called_channel.author.name}")
 
 
 @bot.event
@@ -122,8 +122,9 @@ async def add(called_channel, added_number):
 #⭕❌
 class TicTacToeView(View):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, context):
+        super().__init__(timeout=180)
+        self.context = context
 
         santas_lil_helper = 0
         for i in range(3):
@@ -132,16 +133,21 @@ class TicTacToeView(View):
                 
             santas_lil_helper += 2
 
-    def botTurn(self):
-        pass
-    
-    async def disable_buttons():
-        pass
+    async def isWinner(self):
+        tictactoe_file = open('tictactoewinner.json')
+        winning_combinations_list = json.load(tictactoe_file)    
+        for combos in winning_combinations_list:
+            if self.children[combos[0]].style == discord.ButtonStyle.green and self.children[combos[1]].style == discord.ButtonStyle.green and self.children[combos[2]].style == discord.ButtonStyle.green:
+                await self.context.send('player wins')  
 
-    def isWinner(self, button_collor):
-        for buttons in self.children:
-            if not(buttons.style == discord.ButtonStyle.grey):
-                return ()
+
+    def scanBoard(self):
+        possible_moves = [button.custom_id for button in self.children if button.clicked == False]
+        return possible_moves
+
+    async def on_timeout(self):
+        await self.context.send('Timeout')
+
 
 class TicTacToeButton(Button):
     def __init__(self, label, custom_id, row, board: TicTacToeView):
@@ -152,12 +158,17 @@ class TicTacToeButton(Button):
     async def callback(self, interaction):
         self.label = '❌'
         self.style = discord.ButtonStyle.green
-        self.disabled = True
         self.clicked = True
-        await interaction.response.edit_message(view = self.board)
+        self.disabled = True
+        await interaction.response.edit_message(content = f'{TicTacToeView.scanBoard(self.board)}',view = self.board)
+        await TicTacToeView.isWinner(self.board)
 
-    def isWinner(button_state_list):
-        pass
+        
+
+
+
+
+
 
     
 
@@ -165,11 +176,10 @@ class TicTacToeButton(Button):
 async def ttt(called_channel):
     
     await called_channel.send('welcome to tic tac to')
-    view = TicTacToeView()
+    view = TicTacToeView(called_channel)
     await called_channel.send("tictactoe test", view = view)
 
-    button_ids = [x.custom_id for x in view.children]
-    await called_channel.send(f'{button_ids}')
+
 
 
 
