@@ -159,6 +159,7 @@ class TicTacToeView(View):
         for player in [discord.ButtonStyle.green, discord.ButtonStyle.red]
             for move in possible_moves:
                 boardCopy = self[:]
+                
 
 class TicTacToeButton(Button):
     def __init__(self, label, custom_id, row, board: TicTacToeView):
