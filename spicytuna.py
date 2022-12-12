@@ -148,6 +148,17 @@ class TicTacToeView(View):
     async def on_timeout(self):
         await self.context.send('Timeout')
 
+    def availableMoves(self):
+        possible_moves = []
+        for button in self.children:
+            if button.style == discord.ButtonStyle.grey:
+                possible_moves.append(button.custom_id)
+        return possible_moves
+
+    def botMove(self, possible_moves):
+        for player in [discord.ButtonStyle.green, discord.ButtonStyle.red]
+            for move in possible_moves:
+                boardCopy = self[:]
 
 class TicTacToeButton(Button):
     def __init__(self, label, custom_id, row, board: TicTacToeView):
