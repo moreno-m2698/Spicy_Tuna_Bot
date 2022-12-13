@@ -6,6 +6,7 @@ import random
 import json
 import asyncio
 from discord.ui import Button, View
+import copy
 # import tictacto
 
 # For some reason, it is good practice to use the asyncio library to create pauses in coroutines in python
@@ -133,12 +134,12 @@ class TicTacToeView(View):
                 
             santas_lil_helper += 2
 
-    async def isWinner(self):
+    def isWinnerStatic(self, style):
         tictactoe_file = open('tictactoewinner.json')
         winning_combinations_list = json.load(tictactoe_file)    
         for combos in winning_combinations_list:
-            if self.children[combos[0]].style == discord.ButtonStyle.green and self.children[combos[1]].style == discord.ButtonStyle.green and self.children[combos[2]].style == discord.ButtonStyle.green:
-                await self.context.send('player wins')  
+            if self.children[combos[0]].style == style and self.children[combos[1]].style == style and self.children[combos[2]].style == style:
+                return True
 
 
     def scanBoard(self):
@@ -156,9 +157,44 @@ class TicTacToeView(View):
         return possible_moves
 
     def botMove(self, possible_moves):
-        for player in [discord.ButtonStyle.green, discord.ButtonStyle.red]
+        for player in [discord.ButtonStyle.red, discord.ButtonStyle.green]:
             for move in possible_moves:
-                boardCopy = self[:]
+                boardCopy = copy.deepcopy(self)
+                tested_move = [button for button in boardCopy.children if button.custom_id == move][0]
+                tested_move.style = player
+                if TicTacToeView.isWinnerStatic(boardCopy, player):
+                    bot_move = move
+                    del boardCopy
+                    return move
+        
+        for move in possible_moves:
+            if move.custom_id == 'button_4':
+                return move
+        
+        available_corners = []
+        for move in possible_moves:
+            if move.custom_id in ['button_0', 'button_2', 'button_6', 'button_8']:
+                available_corners.append(move)
+        
+        if len(available_corners) > 0:
+            move = random.choice(available_corners)
+            return move
+       
+        del available_corners
+
+        available_edges = []
+        for move in possible_moves:
+            if move.custom_id in ['button_1', 'button_3', 'button_5', 'button_7']:
+                available_edges.append(move)
+        
+        if len(available_edges) > 0:
+            move = random.choice(available_edges)
+            del available_edges
+            return move
+       
+        
+
+
                 
 
 class TicTacToeButton(Button):
@@ -172,8 +208,13 @@ class TicTacToeButton(Button):
         self.style = discord.ButtonStyle.green
         self.clicked = True
         self.disabled = True
-        await interaction.response.edit_message(content = f'{TicTacToeView.scanBoard(self.board)}',view = self.board)
-        await TicTacToeView.isWinner(self.board)
+        bot_move = TicTacToeView.botMove(self.board, TicTacToeView.availableMoves())
+        bot_button = [button for button in self.board.children if button.custom_id == bot_move][0]
+        bot_button.label = '⭕'
+        bot_button.clicked = True
+        bot_button.disabled = True
+        bot_button.style = discord.ButtonStyle.red
+        
 
         
 
