@@ -134,68 +134,72 @@ class TicTacToeView(View):
                 
             santas_lil_helper += 2
 
-    def isWinnerStatic(self, style):
-        tictactoe_file = open('tictactoewinner.json')
-        winning_combinations_list = json.load(tictactoe_file)    
-        for combos in winning_combinations_list:
-            if self.children[combos[0]].style == style and self.children[combos[1]].style == style and self.children[combos[2]].style == style:
-                return True
+    def viewToModel(self):
+        model = []
+        for button in self.children:
+            if button.style == discord.ButtonStyle.grey:
+                model_button = 0
 
+            elif button.style == discord.ButtonStyle.green:
+                model_button = 1
 
-    def scanBoard(self):
-        possible_moves = [button.custom_id for button in self.children if button.clicked == False]
-        return possible_moves
+            else:
+                model_button = 2
+            model.append(model_button)
 
+        return model
+            
     async def on_timeout(self):
         await self.context.send('Timeout')
 
-    def availableMoves(self):
-        possible_moves = []
-        for button in self.children:
-            if button.style == discord.ButtonStyle.grey:
-                possible_moves.append(button.custom_id)
-        return possible_moves
+class TicTacToeModel():
+    def __init__(self,board):
+        self.board = board
 
     def botMove(self, possible_moves):
-        for player in [discord.ButtonStyle.red, discord.ButtonStyle.green]:
+        for player in [2,1]:
             for move in possible_moves:
                 boardCopy = copy.deepcopy(self)
-                tested_move = [button for button in boardCopy.children if button.custom_id == move][0]
-                tested_move.style = player
-                if TicTacToeView.isWinnerStatic(boardCopy, player):
+                boardCopy[move] = player
+                if TicTacToeModel.WinnerStatic(boardCopy, player):
                     bot_move = move
-                    del boardCopy
                     return move
         
-        for move in possible_moves:
-            if move.custom_id == 'button_4':
-                return move
+        if 4 in possible_moves:
+            return 4
         
         available_corners = []
         for move in possible_moves:
-            if move.custom_id in ['button_0', 'button_2', 'button_6', 'button_8']:
+            if move in [0,2,4,8]:
                 available_corners.append(move)
         
         if len(available_corners) > 0:
             move = random.choice(available_corners)
             return move
-       
-        del available_corners
 
         available_edges = []
         for move in possible_moves:
-            if move.custom_id in ['button_1', 'button_3', 'button_5', 'button_7']:
+            if move in [1,3,5,7]:
                 available_edges.append(move)
         
         if len(available_edges) > 0:
             move = random.choice(available_edges)
-            del available_edges
-            return move
-       
+            return move 
+    
+    def isWinner(self, player):
+        tictactoe_file = open('tictactoewinner.json')
+        winning_combinations_list = json.load(tictactoe_file)    
+        for combos in winning_combinations_list:
+            if self[combos[0]] == player and self[combos[1]] == player and self[combos[2]] == player:
+                return True
+
+    def availableSpace(self):
+        possible_moves = []
+        for i in range(len(self)):
+            if self[i] == 0:
+                possible_moves.append(i)
         
-
-
-                
+        return possible_moves
 
 class TicTacToeButton(Button):
     def __init__(self, label, custom_id, row, board: TicTacToeView):
@@ -208,22 +212,26 @@ class TicTacToeButton(Button):
         self.style = discord.ButtonStyle.green
         self.clicked = True
         self.disabled = True
-        bot_move = TicTacToeView.botMove(self.board, TicTacToeView.availableMoves())
-        bot_button = [button for button in self.board.children if button.custom_id == bot_move][0]
-        bot_button.label = '⭕'
-        bot_button.clicked = True
-        bot_button.disabled = True
-        bot_button.style = discord.ButtonStyle.red
-        
-
-        
-
-
-
-
-
-
+        self.model = TicTacToeModel(TicTacToeView.viewToModel(self.board))
+        if TicTacToeModel.isWinner(self.model, 1):
+            for button in self.board.children:
+                button.disabled = True
+            await interaction.response.edit_message(content = "Player wins", view =self.board)
     
+        else:
+            bot_move = TicTacToeModel.botMove(self.model, TicTacToeModel.availableSpace(self.model))
+            bot_button = [button for button in self.board.children if button.custom_id == f'button_{bot_move}'][0]
+            bot_button.label = '⭕'
+            bot_button.clicked = True
+            bot_button.disabled = True
+            bot_button.style = discord.ButtonStyle.blurple
+            if TicTacToeModel.isWinner(self.model, 2):
+                for button in self.board.children:
+                    button.disabled = True
+                await interaction.response.edit_message(content = "bot wins", view =self.board)
+
+            else:
+                await interaction.response.edit_message(content = "player turn", view = self.view)
 
 @bot.command()
 async def ttt(called_channel):
@@ -232,14 +240,9 @@ async def ttt(called_channel):
     view = TicTacToeView(called_channel)
     await called_channel.send("tictactoe test", view = view)
 
-
-
-
-
 @bot.command()
 async def uwu(called_channel, message):
     pass
-
 
 bot.run(os.environ["DISCORD_TOKEN_BOT"])
 
