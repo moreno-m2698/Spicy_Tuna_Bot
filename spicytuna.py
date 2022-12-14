@@ -6,8 +6,7 @@ import random
 import json
 import asyncio
 from discord.ui import Button, View
-import copy
-# import tictacto
+from TicTacToeModel import TicTacToeModel
 
 # For some reason, it is good practice to use the asyncio library to create pauses in coroutines in python
 
@@ -142,69 +141,25 @@ class TicTacToeView(View):
 
             elif button.style == discord.ButtonStyle.green:
                 model_button = 1
-
             else:
                 model_button = 2
             model.append(model_button)
 
         return model
+
+
+    #take current buttons in view and translate that to a board model
+    #do logic on the model to update its board state
+    #view reads new board state and updates its button based on it
             
     async def on_timeout(self):
         await self.context.send('Timeout')
 
-class TicTacToeModel():
-    def __init__(self,board):
-        self.board = board
-
-    def botMove(self, possible_moves):
-        for player in [2,1]:
-            for move in possible_moves:
-                boardCopy = copy.deepcopy(self)
-                boardCopy[move] = player
-                if TicTacToeModel.WinnerStatic(boardCopy, player):
-                    bot_move = move
-                    return move
-        
-        if 4 in possible_moves:
-            return 4
-        
-        available_corners = []
-        for move in possible_moves:
-            if move in [0,2,4,8]:
-                available_corners.append(move)
-        
-        if len(available_corners) > 0:
-            move = random.choice(available_corners)
-            return move
-
-        available_edges = []
-        for move in possible_moves:
-            if move in [1,3,5,7]:
-                available_edges.append(move)
-        
-        if len(available_edges) > 0:
-            move = random.choice(available_edges)
-            return move 
-    
-    def isWinner(self, player):
-        tictactoe_file = open('tictactoewinner.json')
-        winning_combinations_list = json.load(tictactoe_file)    
-        for combos in winning_combinations_list:
-            if self[combos[0]] == player and self[combos[1]] == player and self[combos[2]] == player:
-                return True
-
-    def availableSpace(self):
-        possible_moves = []
-        for i in range(len(self)):
-            if self[i] == 0:
-                possible_moves.append(i)
-        
-        return possible_moves
 
 class TicTacToeButton(Button):
-    def __init__(self, label, custom_id, row, board: TicTacToeView):
+    def __init__(self, label, custom_id, row, ttt_view: TicTacToeView):
         super().__init__(label = label, style = discord.ButtonStyle.grey, custom_id=custom_id, row=row)
-        self.board = board
+        self.ttt_view = ttt_view
         self.clicked = False
 
     async def callback(self, interaction):
@@ -212,26 +167,28 @@ class TicTacToeButton(Button):
         self.style = discord.ButtonStyle.green
         self.clicked = True
         self.disabled = True
-        self.model = TicTacToeModel(TicTacToeView.viewToModel(self.board))
-        if TicTacToeModel.isWinner(self.model, 1):
-            for button in self.board.children:
+        ttt_model = TicTacToeModel(self.ttt_view.viewToModel())
+        #If player wins
+        if ttt_model.isWinner(1):
+            for button in self.ttt_view.children:
                 button.disabled = True
-            await interaction.response.edit_message(content = "Player wins", view =self.board)
-    
+            await interaction.response.edit_message(content = "Player wins", view = self.ttt_view)
         else:
-            bot_move = TicTacToeModel.botMove(self.model, TicTacToeModel.availableSpace(self.model))
-            bot_button = [button for button in self.board.children if button.custom_id == f'button_{bot_move}'][0]
+            #Get the bot move index
+            bot_move = ttt_model.botMove(ttt_model.availableSpace())
+            #bot_button = [button for button in self.ttt_view.children if button.custom_id == f'button_{bot_move}'][0]
+            bot_button = self.ttt_view.children[bot_move]
             bot_button.label = '⭕'
             bot_button.clicked = True
             bot_button.disabled = True
             bot_button.style = discord.ButtonStyle.blurple
-            if TicTacToeModel.isWinner(self.model, 2):
-                for button in self.board.children:
+            #If bot wins
+            if ttt_model.isWinner(2):
+                for button in self.ttt_view.children:
                     button.disabled = True
-                await interaction.response.edit_message(content = "bot wins", view =self.board)
-
+                await interaction.response.edit_message(content = "bot wins", view=self.ttt_view)
             else:
-                await interaction.response.edit_message(content = "player turn", view = self.view)
+                await interaction.response.edit_message(content = "player turn", view = self.ttt_view)
 
 @bot.command()
 async def ttt(called_channel):
