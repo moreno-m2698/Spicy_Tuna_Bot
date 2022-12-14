@@ -8,12 +8,19 @@ class TicTacToeModel():
         self.board = board
 
     def botMove(self, possible_moves):
+        
+        #Make the bot 'fair'
+        randomInt = random.choice(list((range(1,9))))
+        if 1 == randomInt:
+            move = random.choice(possible_moves)
+            return move
+        
         #Checking for win conditions
         for player in [2,1]:
             for move in possible_moves:
                 boardCopy = copy.copy(self.board)
                 boardCopy[move] = player
-                if self.isWinner(player):
+                if TicTacToeModel(boardCopy).isWinner(player):
                     return move
         
         #If center is available take the center
@@ -43,10 +50,12 @@ class TicTacToeModel():
             return move 
     
     def isWinner(self, player: int):
-        tictactoe_file = open('tictactoewinner.json')
+        tictactoe_file = open('data/tictactoewinner.json')
         winning_combinations_list = json.load(tictactoe_file)    
         for combo in winning_combinations_list:
-            return self.board[combo[0]] == player and self.board[combo[1]] == player and self.board[combo[2]] == player  
+            if self.board[combo[0]] == player and self.board[combo[1]] == player and self.board[combo[2]] == player:
+                return True  
+        return False
 
     def availableSpace(self):
         possible_moves = []
