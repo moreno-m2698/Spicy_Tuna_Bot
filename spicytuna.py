@@ -5,6 +5,7 @@ import random
 import json
 import asyncio
 from view.TicTacToeView import TicTacToeView
+from discord.ui import View, Button
 
 # For some reason, it is good practice to use the asyncio library to create pauses in coroutines in python
 
@@ -128,12 +129,24 @@ async def uwu(called_channel, message):
 @bot.command()
 async def lolmatch(called_channel, summoner_name):
     await called_channel.send('Test Window')
+    embed = discord.Embed(colour = 1, title = 'TEST', description='TEST') # Will display information for the game
+    # view = discord.ui.View() # will be used to switch between games
+
+
+    # button1 = discord.ui.Button(label = 1, row=1)
+    # button2 =discord.ui.Button(label = 2, row = 1)
+
+    # view.add_item(button1)
+    # view.add_item(button2)
+
+   
+    await called_channel.send(embed = embed)
     
 
 
 bot.run(os.environ["DISCORD_TOKEN_BOT"])
 
 
-
+ 
 
 

@@ -2,7 +2,6 @@ import os
 import requests
 
 riottoken = os.environ["RIOT_API_TOKEN"]
-user = 'Overwatch Mercy'
 
 class RiotAPIWrapper():
     def __init__(self,token) -> None:
@@ -28,7 +27,7 @@ class RiotAPIWrapper():
         matches_url =  'https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/'
 
         try:
-            access_url = f'{matches_url}{puuid}/ids?count={amount}&api_key={self.token}'
+            access_url = f'{matches_url}{puuid}/ids?start=0&count={amount}&api_key={self.token}'
             response = requests.get(access_url).json()
             return response
         
@@ -52,9 +51,13 @@ class RiotAPIWrapper():
     def SummonertoMatchList(self,amount: int,name: str) -> list: 
         puuid = self.getSummonerInformation(name)['puuid']
         match_id_list = self.getMatchIDByPUUID(puuid,amount)
+        print(match_id_list)
+        
         result = []
         for game in match_id_list:
             result.append(self.getMatchList(game))
+        
+        
         return result
 
 # !lolmatch Umbrall 3
