@@ -56,7 +56,7 @@ class TicTacToeButton(Button):
         if ttt_model.isWinner(1):
             for button in self.ttt_view.children:
                 button.disabled = True
-            await interaction.response.edit_message(content = "Player wins", view = self.ttt_view)
+            await interaction.response.edit_message(content = "User wins", view = self.ttt_view)
             self.ttt_view.stop()
         else:
             #Get the bot move index
@@ -64,7 +64,7 @@ class TicTacToeButton(Button):
             if bot_move == None:
                 for button in self.ttt_view.children:
                     button.disabled = True
-                await interaction.response.edit_message(content="tie", view = self.ttt_view)
+                await interaction.response.edit_message(content="Tie game", view = self.ttt_view)
                 self.ttt_view.stop()
             #bot_button = [button for button in self.ttt_view.children if button.custom_id == f'button_{bot_move}'][0]
             else:
@@ -77,8 +77,8 @@ class TicTacToeButton(Button):
                 if ttt_model.isWinner(2):
                     for button in self.ttt_view.children:
                         button.disabled = True
-                    await interaction.response.edit_message(content = "bot wins", view=self.ttt_view)
+                    await interaction.response.edit_message(content = "Bot wins", view=self.ttt_view)
                     self.ttt_view.stop()
                 else:
-                    await interaction.response.edit_message(content = "player turn", view = self.ttt_view)
+                    await interaction.response.edit_message(content = "User's turn", view = self.ttt_view)
                     

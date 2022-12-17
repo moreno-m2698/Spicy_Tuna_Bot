@@ -117,15 +117,22 @@ async def add(called_channel, added_number):
 @bot.command()
 async def ttt(called_channel):
     
-    await called_channel.send('welcome to tic tac to')
+    await called_channel.send('Welcome to Tic Tac Toe')
     view = TicTacToeView(called_channel)
-    await called_channel.send("tictactoe test", view = view)
+    await called_channel.send("User's turn", view = view)
 
 @bot.command()
 async def uwu(called_channel, message):
     pass
 
+@bot.command()
+async def lolmatch(called_channel, summoner_name):
+    await called_channel.send('Test Window')
+    
+
+
 bot.run(os.environ["DISCORD_TOKEN_BOT"])
+
 
 
 
