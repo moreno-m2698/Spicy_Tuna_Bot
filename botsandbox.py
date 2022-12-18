@@ -26,8 +26,17 @@ riottoken = os.environ["RIOT_API_TOKEN"]
 
 
 class MatchEmbed(discord.Embed):
-    def __init__(self, colour, title, description) -> None:
+    def __init__(self, colour, title, description, wrapper: RiotAPIWrapper) -> None:
         super().__init__(colour = colour, title = title, description=description)
+        self.wrapper = wrapper
+
+    def getChampionName(self, summoner_name):
+        information = self.wrapper.SummonertoMatchList(1, summoner_name)[0]
+        summoner_list = information['info']['participants']
+        summoner_information = [summoner for summoner in summoner_list if summoner['puuid'] == f'{self.wrapper.getSummonerInformation(summoner_name)["puuid"]}'][0]
+        champion_name = summoner_information["championName"]
+        self.description = f'{summoner_information["summonerName"]}: {champion_name}'
+
 
 
 class MatchDisplayView(View):
@@ -42,18 +51,10 @@ class MatchDisplayButton(Button):
 @bot.command()
 async def lolmatch(called_channel, summoner_name):
     wrapper = RiotAPIWrapper(riottoken)
-    information = wrapper.SummonertoMatchList(1, summoner_name)[0]
-    summoner_list = information['info']['participants']
-    summoner_information = [summoner for summoner in summoner_list if summoner['puuid'] == f'{wrapper.getSummonerInformation(summoner_name)["puuid"]}'][0]
-    print(f'{summoner_information["championName"]}')
     
-    if information != None:
+    embed = MatchEmbed(colour = 1, title = 'TEST',description = None, wrapper=wrapper) # Will display information for the game
+    embed.getChampionName(summoner_name)
 
-        embed = MatchEmbed(colour = 1, title = 'TEST', description='SUCCESS: JSON LOADED') # Will display information for the game
-
-    else:
-        embed = MatchEmbed(colour = 1, title = 'TEST', description='FAIL') # Will display information for the game
-    
     view = discord.ui.View() # will be used to switch between games
     button1 = discord.ui.Button(label = 1, row=1)
     button2 =discord.ui.Button(label = 2, row = 1)

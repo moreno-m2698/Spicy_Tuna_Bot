@@ -50,7 +50,7 @@ class RiotAPIWrapper():
     # Melds methods together
     def SummonertoMatchList(self,amount: int,name: str) -> list: 
         puuid = self.getSummonerInformation(name)['puuid']
-        match_id_list = self.getMatchIDByPUUID(puuid,amount)
+        match_id_list = self.getMatchIDByPUUID(puuid, amount)
         print(match_id_list)
         
         result = []
