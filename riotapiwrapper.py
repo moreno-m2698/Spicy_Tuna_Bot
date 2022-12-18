@@ -59,8 +59,6 @@ class RiotAPIWrapper():
             result.append(self.getMatchList(game))
             print(sys.getsizeof(self.getMatchList(game)))
             
-        
-        
         return result
 
 # !lolmatch Umbrall 3
