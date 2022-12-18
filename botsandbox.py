@@ -30,16 +30,29 @@ class MatchEmbed(discord.Embed):
         super().__init__(colour = colour, title = title, description=description)
         self.wrapper = wrapper
 
-    def getChampionName(self, summoner_name):
+    def getSummoner_information(self, summoner_name):
         information = self.wrapper.SummonertoMatchList(1, summoner_name)[0]
         summoner_list = information['info']['participants']
         summoner_information = [summoner for summoner in summoner_list if summoner['puuid'] == f'{self.wrapper.getSummonerInformation(summoner_name)["puuid"]}'][0]
+        return summoner_information
+
+    def getChampionName(self, summoner_information):
+        
         champion_name = summoner_information["championName"]
         self.description = f'{summoner_information["summonerName"]}: {champion_name}'
+
+    def getKDA(self, summoner_information):
+        player_kills = summoner_information["kills"]
+        player_deaths = summoner_information["deaths"]
+        player_assists = summoner_information["assists"]
+        kda = f'{player_kills}/{player_deaths}/{player_assists}'
+        self.description = f'KDA: {kda}'
+        
 
 
 
 class MatchDisplayView(View):
+
     def __init__(self) -> None:
         super().__init__()
 
@@ -53,7 +66,8 @@ async def lolmatch(called_channel, summoner_name):
     wrapper = RiotAPIWrapper(riottoken)
     
     embed = MatchEmbed(colour = 1, title = 'TEST',description = None, wrapper=wrapper) # Will display information for the game
-    embed.getChampionName(summoner_name)
+    summoner_information =embed.getSummoner_information(summoner_name)
+    embed.getKDA(summoner_information)
 
     view = discord.ui.View() # will be used to switch between games
     button1 = discord.ui.Button(label = 1, row=1)
