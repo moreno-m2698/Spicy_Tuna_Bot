@@ -1,5 +1,6 @@
 import os
 import requests
+import sys
 
 riottoken = os.environ["RIOT_API_TOKEN"]
 
@@ -56,6 +57,8 @@ class RiotAPIWrapper():
         result = []
         for game in match_id_list:
             result.append(self.getMatchList(game))
+            print(sys.getsizeof(self.getMatchList(game)))
+            
         
         
         return result

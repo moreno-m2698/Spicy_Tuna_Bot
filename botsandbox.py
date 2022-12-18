@@ -37,7 +37,6 @@ class MatchEmbed(discord.Embed):
         return summoner_information
 
     def getChampionName(self, summoner_information):
-        
         champion_name = summoner_information["championName"]
         self.description = f'{summoner_information["summonerName"]}: {champion_name}'
 
@@ -47,10 +46,16 @@ class MatchEmbed(discord.Embed):
         player_assists = summoner_information["assists"]
         kda = f'{player_kills}/{player_deaths}/{player_assists}'
         self.description = f'KDA: {kda}'
+
+    def getGold(self, summoner_information):
+        gold_earned = summoner_information["goldEarned"]
+        self.description = f'Gold Earned: {gold_earned}'
+
+    def getGamemode(self,summoner_name):
+        information = self.wrapper.SummonertoMatchList(1, summoner_name)[0]
+        gamemode = information['info']['gameMode']
+        self.description = f'Gamemode: {gamemode}'
         
-
-
-
 class MatchDisplayView(View):
 
     def __init__(self) -> None:
@@ -67,7 +72,7 @@ async def lolmatch(called_channel, summoner_name):
     
     embed = MatchEmbed(colour = 1, title = 'TEST',description = None, wrapper=wrapper) # Will display information for the game
     summoner_information =embed.getSummoner_information(summoner_name)
-    embed.getKDA(summoner_information)
+    embed.getGamemode(summoner_name)
 
     view = discord.ui.View() # will be used to switch between games
     button1 = discord.ui.Button(label = 1, row=1)
