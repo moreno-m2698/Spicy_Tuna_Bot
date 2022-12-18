@@ -8,7 +8,6 @@ from view.TicTacToeView import TicTacToeView
 from discord.ui import View, Button
 from riotapiwrapper import RiotAPIWrapper
 
-
 myIntents = discord.Intents.default()
 myIntents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=myIntents)
@@ -23,7 +22,6 @@ async def on_ready():
 
 riottoken = os.environ["RIOT_API_TOKEN"]
 #team id = 100[blue] 200[red]
-
 
 class MatchEmbed(discord.Embed):
     def __init__(self, colour, title, description, wrapper: RiotAPIWrapper) -> None:
@@ -81,6 +79,5 @@ async def lolmatch(called_channel, summoner_name):
     view.add_item(button2)
    
     await called_channel.send(embed = embed, view = view)
-
 
 bot.run(os.environ["DISCORD_TOKEN_BOT"])    
