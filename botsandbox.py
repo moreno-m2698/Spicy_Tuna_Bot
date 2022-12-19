@@ -30,8 +30,8 @@ class MatchEmbed(discord.Embed):
 
     def getSummoner_information(self, summoner_name):
         information = self.wrapper.SummonertoMatchList(1, summoner_name)[0]
-        summoner_list = information['info']['participants']
-        summoner_information = [summoner for summoner in summoner_list if summoner['puuid'] == f'{self.wrapper.getSummonerInformation(summoner_name)["puuid"]}'][0]
+        summoner_index = information['metadata']['participants'].index(self.wrapper.getSummonerInformation(summoner_name)['puuid'])
+        summoner_information = information["info"]["participants"][summoner_index]
         return summoner_information
 
     def getChampionName(self, summoner_information):
