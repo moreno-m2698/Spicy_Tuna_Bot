@@ -36,10 +36,14 @@ class PlayerDTO():
     def __init__(self, summoner_name, game_information: RiotAPIWrapper) -> None:
         self.summoner_name = summoner_name
         self.game_information = game_information
+        self.champion = self.game_information.getPlayerChampionName(self.game_information.getSummonerGameInformation(self.game_information.SummonertoMatchList(1,summoner_name),summoner_name))
+        self.kda = self.game_information.getPlayerKDA(self.game_information.getSummonerGameInformation(self.game_information.SummonertoMatchList(1,summoner_name),summoner_name))
         self.team_color = self.game_information.getTeamColor(self.game_information.getSummonerGameInformation(self.game_information.SummonertoMatchList(1,summoner_name),summoner_name))
+        self.gold = self.game_information.getPlayerGold(self.game_information.getSummonerGameInformation(self.game_information.SummonertoMatchList(1,summoner_name),summoner_name))
+        self.game_status=self.game_information.getWinLose(self.game_information.getSummonerGameInformation(self.game_information.SummonertoMatchList(1,summoner_name),summoner_name))
 
     def __str__(self) -> str:
-        return f'team = {self.team_color}'
+        return f'{self.champion}\n{self.kda}\n{self.gold}\n{self.game_information}\n{self.team_color}'
 
 
 
