@@ -24,36 +24,25 @@ riottoken = os.environ["RIOT_API_TOKEN"]
 #team id = 100[blue] 200[red]
 
 class MatchEmbed(discord.Embed):
-    def __init__(self, colour, title, description, wrapper: RiotAPIWrapper) -> None:
+    def __init__(self, colour, title, description) -> None:
         super().__init__(colour = colour, title = title, description=description)
-        self.wrapper = wrapper
 
-    def getSummoner_information(self, summoner_name):
-        information = self.wrapper.SummonertoMatchList(1, summoner_name)[0]
-        summoner_index = information['metadata']['participants'].index(self.wrapper.getSummonerInformation(summoner_name)['puuid'])
-        summoner_information = information["info"]["participants"][summoner_index]
-        return summoner_information
 
-    def getChampionName(self, summoner_information):
-        champion_name = summoner_information["championName"]
-        self.description = f'{summoner_information["summonerName"]}: {champion_name}'
+    
+    
+    #Match id index (newest game will be 0 and the oldest will be max index)
 
-    def getKDA(self, summoner_information):
-        player_kills = summoner_information["kills"]
-        player_deaths = summoner_information["deaths"]
-        player_assists = summoner_information["assists"]
-        kda = f'{player_kills}/{player_deaths}/{player_assists}'
-        self.description = f'KDA: {kda}'
+class PlayerDTO():
+    def __init__(self, summoner_name, game_information: RiotAPIWrapper) -> None:
+        self.summoner_name = summoner_name
+        self.game_information = game_information
+        self.team_color = self.game_information.getTeamColor(self.game_information.getSummonerGameInformation(self.game_information.SummonertoMatchList(1,summoner_name),summoner_name))
 
-    def getGold(self, summoner_information):
-        gold_earned = summoner_information["goldEarned"]
-        self.description = f'Gold Earned: {gold_earned}'
+    def __str__(self) -> str:
+        return f'team = {self.team_color}'
 
-    def getGamemode(self,summoner_name):
-        information = self.wrapper.SummonertoMatchList(1, summoner_name)[0]
-        gamemode = information['info']['gameMode']
-        self.description = f'Gamemode: {gamemode}'
-        
+
+
 class MatchDisplayView(View):
 
     def __init__(self) -> None:
@@ -68,9 +57,8 @@ class MatchDisplayButton(Button):
 async def lolmatch(called_channel, summoner_name):
     wrapper = RiotAPIWrapper(riottoken)
     
-    embed = MatchEmbed(colour = 1, title = 'TEST',description = None, wrapper=wrapper) # Will display information for the game
-    summoner_information =embed.getSummoner_information(summoner_name)
-    embed.getGamemode(summoner_name)
+    embed = MatchEmbed(colour = 1, title = 'TEST',description = PlayerDTO(summoner_name, wrapper)) # Will display information for the game
+    
 
     view = discord.ui.View() # will be used to switch between games
     button1 = discord.ui.Button(label = 1, row=1)

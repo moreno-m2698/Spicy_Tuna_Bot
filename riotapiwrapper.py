@@ -61,6 +61,71 @@ class RiotAPIWrapper():
             
         return result
 
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    #Methods for extracting information from api responses pertaining to game data which are then used to help in creating the embed interface   
+     
+    def getPUUIDGameMetadataFromSummonerName(self,game_list: list):
+        response = game_list[0]
+        metadata_puuid_list = response["metadata"]["participants"]
+        return metadata_puuid_list
+
+    # THINK ABOUT TRYING TO MAKE A 2 ELEMENT LIST TO HOLD THE INFORMATION SO THAT WE DO NOT HAVE  TO CALL TWICE
+
+    def getGameInformationFromSummonerName(self, game_list:list):
+        response = game_list[0]
+        game_information_list = response["info"]["participants"]
+        return game_information_list
+
+    def getSummonerGameInformation(self, game_list: list, summoner_name: str):
+        game_information = self.getGameInformationFromSummonerName(game_list)
+        puuid_metadata = self.getPUUIDGameMetadataFromSummonerName(game_list)
+        summoner_index = puuid_metadata.index(self.getSummonerInformation(summoner_name)['puuid'])
+        summoner_information = game_information[summoner_index]
+        return summoner_information
+
+    def getPlayerChampionName(self, summoner_information):
+        champion_name = summoner_information["championName"]
+        return f'{summoner_information["summonerName"]}: {champion_name}'
+
+    def getPlayerKDA(self, summoner_information): # Add case for perfect game
+        player_kills = summoner_information["kills"]
+        player_deaths = summoner_information["deaths"]
+        player_assists = summoner_information["assists"]
+        kda = f'{round((player_kills + player_assists) / player_deaths, 2)}:1'
+        return f'KDA: {kda}'
+
+    def getPlayerGold(self, summoner_information):
+        gold_earned = summoner_information["goldEarned"]
+        return f'Gold Earned: {gold_earned}'
+
+    def getGamemode(self,summoner_name):
+        information = self.SummonertoMatchList(1, summoner_name)[0]
+        gamemode = information['info']['gameMode']
+        return f'Gamemode: {gamemode}'
+
+    def getWinLose(self, summoner_information):
+        conclusion = summoner_information["win"]
+        if conclusion == True:
+            return f'Game win'
+        else:
+            return f'Game Lose'
+
+    def getTeamColor(self, summoner_information):
+        team_color = summoner_information["teamId"]
+        if team_color == 100:
+            return '🟦'
+        else:
+            return '🟥'     
+
+    def organizePlayerstoTeams(self, summoner_name):
+        game_information = self.getGameInformationFromSummonerName(self.SummonertoMatchList(1, summoner_name))
+        team1 = [summoner['summonerName'] for summoner in game_information if game_information.index(summoner)<=4]
+        team2 = [summoner['summonerName'] for summoner in game_information if game_information.index(summoner)>4]
+        teams = (team1, team2)
+        return f'{teams}'
+
+
 # !lolmatch Umbrall 3
 # [2:59 PM]
 # !lolmatch Umbrall
