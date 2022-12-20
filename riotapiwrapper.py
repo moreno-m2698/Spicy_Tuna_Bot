@@ -84,11 +84,16 @@ class RiotAPIWrapper():
         summoner_information = game_information[summoner_index]
         return summoner_information
 
+    def getGamemode(self,summoner_name) -> str:
+        information = self.SummonertoMatchList(1, summoner_name)[0]
+        gamemode = information['info']['gameMode']
+        return f'Gamemode: {gamemode}'
+
     def getPlayerChampionName(self, summoner_information):
         champion_name = summoner_information["championName"]
         return f'{summoner_information["summonerName"]}: {champion_name}'
 
-    def getPlayerKDA(self, summoner_information): # Add case for perfect game
+    def getPlayerKDA(self, summoner_information): # Add case for perfect game!!!
         player_kills = summoner_information["kills"]
         player_deaths = summoner_information["deaths"]
         player_assists = summoner_information["assists"]
@@ -99,24 +104,18 @@ class RiotAPIWrapper():
         gold_earned = summoner_information["goldEarned"]
         return f'Gold Earned: {gold_earned}'
 
-    def getGamemode(self,summoner_name):
-        information = self.SummonertoMatchList(1, summoner_name)[0]
-        gamemode = information['info']['gameMode']
-        return f'Gamemode: {gamemode}'
+    def getBinaryFromSummonerInfo(self, summoner_information, key: str, condition, tfValues: tuple):
+        value = summoner_information[key]
+        return tfValues[0] if value == condition else tfValues[1]
 
-    def getWinLose(self, summoner_information):
-        conclusion = summoner_information["win"]
-        if conclusion == True:
-            return f'Game win'
-        else:
-            return f'Game Lose'
-
-    def getTeamColor(self, summoner_information):
-        team_color = summoner_information["teamId"]
-        if team_color == 100:
-            return '🟦'
-        else:
-            return '🟥'     
+    def getPlayerGameStats(self, summoner_information):
+        game_stats = {}
+        game_stats['champion'] = self.getPlayerChampionName(summoner_information)
+        game_stats['kda'] = self.getPlayerKDA(summoner_information)
+        game_stats['gold'] = self.getPlayerGold(summoner_information)
+        game_stats['winlose'] = self.getBinaryFromSummonerInfo(summoner_information, key='win', condition=True,tfValues=('This guy won one','This guy a loser'))
+        game_stats['teamcolor'] = self.getBinaryFromSummonerInfo(summoner_information, key ='teamId', condition = 100, tfValues = ('🟦','🟥'))
+        return game_stats
 
     def organizePlayerstoTeams(self, summoner_name):
         game_information = self.getGameInformationFromSummonerName(self.SummonertoMatchList(1, summoner_name))
@@ -125,18 +124,6 @@ class RiotAPIWrapper():
         teams = (team1, team2)
         return f'{teams}'
 
-
-# !lolmatch Umbrall 3
-# [2:59 PM]
-# !lolmatch Umbrall
-# [3:00 PM]
-# - Summoner champion
-# [3:00 PM]
-# - kda
-# [3:00 PM]
-# - total gold
-# [3:00 PM]
-# - game mode
 # [3:00 PM]
 # - enemy champs
 # [3:00 PM]
@@ -145,8 +132,6 @@ class RiotAPIWrapper():
 # - game length
 # [3:00 PM]
 # - turrets taken
-# [3:00 PM]
-# - win/lose
 # [3:01 PM]
 # - expand info - rune info
 # [3:01 PM]

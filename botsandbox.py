@@ -25,27 +25,32 @@ riottoken = os.environ["RIOT_API_TOKEN"]
 
 class MatchEmbed(discord.Embed):
     def __init__(self, colour, title, description) -> None:
-        super().__init__(colour = colour, title = title, description=description)
-
-
-    
-    
+        super().__init__(colour = colour, title = title, description=description)  
     #Match id index (newest game will be 0 and the oldest will be max index)
 
 class PlayerDTO():
     def __init__(self, summoner_name, game_information: RiotAPIWrapper) -> None:
+
+        # combine these variable calls into a single list to stop parsing json multiple times
         self.summoner_name = summoner_name
         self.game_information = game_information
-        self.champion = self.game_information.getPlayerChampionName(self.game_information.getSummonerGameInformation(self.game_information.SummonertoMatchList(1,summoner_name),summoner_name))
-        self.kda = self.game_information.getPlayerKDA(self.game_information.getSummonerGameInformation(self.game_information.SummonertoMatchList(1,summoner_name),summoner_name))
-        self.team_color = self.game_information.getTeamColor(self.game_information.getSummonerGameInformation(self.game_information.SummonertoMatchList(1,summoner_name),summoner_name))
-        self.gold = self.game_information.getPlayerGold(self.game_information.getSummonerGameInformation(self.game_information.SummonertoMatchList(1,summoner_name),summoner_name))
-        self.game_status=self.game_information.getWinLose(self.game_information.getSummonerGameInformation(self.game_information.SummonertoMatchList(1,summoner_name),summoner_name))
+        self.information_list = self.game_information.getPlayerGameStats(self.game_information.getSummonerGameInformation(self.game_information.SummonertoMatchList(1,summoner_name),summoner_name))
 
     def __str__(self) -> str:
-        return f'{self.champion}\n{self.kda}\n{self.gold}\n{self.game_information}\n{self.team_color}'
+        strresult = ''
+        for keys in self.information_list:
+            strresult += f'{keys}: {self.information_list[keys]}\n'
+        return strresult
 
+class TeamDTO():
+    def __init__(self, game_information: RiotAPIWrapper) -> None:
+        pass
+        
 
+class GameDTO():
+    def __init__(self, game_information:RiotAPIWrapper) -> None:
+        self.game_information = game_information
+        
 
 class MatchDisplayView(View):
 
@@ -62,8 +67,6 @@ async def lolmatch(called_channel, summoner_name):
     wrapper = RiotAPIWrapper(riottoken)
     
     embed = MatchEmbed(colour = 1, title = 'TEST',description = PlayerDTO(summoner_name, wrapper)) # Will display information for the game
-    
-
     view = discord.ui.View() # will be used to switch between games
     button1 = discord.ui.Button(label = 1, row=1)
     button2 =discord.ui.Button(label = 2, row = 1)
