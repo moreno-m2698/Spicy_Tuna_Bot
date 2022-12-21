@@ -16,7 +16,7 @@ class PlayerDTO():
         self.kda = round((self.kills + self.assists) / 1, 2) if self.deaths == 0 else round((self.kills + self.assists) / self.deaths, 2)
     
     def __str__(self) -> str:
-        return f'{self.summoner_name}'
+        return f'{self.summoner_name}: {self.champion} | KDA: {self.kills}/{self.deaths}/{self.assists}  ({self.kda})'
     
 class TeamDTO():
     def __init__(self,team: list) -> None:
@@ -39,7 +39,12 @@ class MatchDTO():
             self.match.append(TeamDTO(team))
     
     def __str__(self) -> str:
-        return f'{self.match}'
+        result = ""
+        for team in self.match:
+            for player in team.player_list:
+                result+=f'{player}\n'
+            result+='\n'
+        return result
 
 
 class RiotAPIWrapper():
@@ -103,10 +108,7 @@ class RiotAPIWrapper():
 
     # Create methods around accessing information thats relevant for player being used to access game information
     #   important: all player information
-
-    # Create methods for accessing general information for each player dto\\
-
-     # Mapping function
+        # Mapping function!!!!!!
     def getParticipantData(self, participant:dict) -> dict: #In theory will reduce the big partcipant dict into something we want
         wanted_keys = ["assists",'championName',"deaths","goldEarned","kills","puuid","summonerName","teamId","win"]
         information_dict = {}
@@ -114,20 +116,14 @@ class RiotAPIWrapper():
             information_dict[key]=participant[key]
         return information_dict
 
-    def getWantedGameData(self,all_game_data: dict) -> list: # This function will directly interact with getMatch web response
-        
-        participants = all_game_data[0]["info"]["participants"]
-        desired_data = map(self.getParticipantData, participants)
-        return list(desired_data) #list of dicts
-
-    def getWantedTeamData(self, condensed_game_data:list) -> tuple: #Returns a tuple that contains lists for the players of each team
-        team1 = [summoner for summoner in condensed_game_data if condensed_game_data.index(summoner)<=4]
-        team2 = [summoner for summoner in condensed_game_data if condensed_game_data.index(summoner)>4]
-        teams = (team1,team2)
-        return teams
-
     def getMatchDTO(self, amount, summoner_name):
-        return MatchDTO(self.getWantedTeamData(self.getWantedGameData(self.SummonerNametoMatchList(1, summoner_name))))
+        all_game_data = self.SummonerNametoMatchList(amount, summoner_name)
+        participants =all_game_data[0]["info"]["participants"] #Single element right now but will eventually have to think about loop implementation for a list of games
+        desired_data = list(map(self.getParticipantData, participants))
+        team1 = [summoner for summoner in desired_data if desired_data.index(summoner)<=4]
+        team2 = [summoner for summoner in desired_data if desired_data.index(summoner)>4]
+        teams  = (team1, team2)
+        return MatchDTO(teams)
 
     def getBinaryFromSummonerInfo(condensed_data: dict, key: str, condition, tfValues: tuple):
         value = condensed_data[key]

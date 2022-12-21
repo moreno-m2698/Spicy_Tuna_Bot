@@ -42,12 +42,9 @@ class MatchDisplayButton(Button):
 async def lolmatch(called_channel, summoner_name):
     wrapper = RiotAPIWrapper(riottoken)
     result = wrapper.getMatchDTO(1,summoner_name)
-    description = ''
-    for team in result.match:
-        for player in team.player_list:
-            description+=f'{player}\n'
+    
 
-    embed = MatchEmbed(colour = 1, title = 'TEST',description = description) # Will display information for the game
+    embed = MatchEmbed(colour = discord.Colour.from_rgb(203,46,13), title = 'TEST',description = result) # Will display information for the game
     view = discord.ui.View() # will be used to switch between games
     button1 = discord.ui.Button(label = 1, row=1)
     button2 =discord.ui.Button(label = 2, row = 1)
