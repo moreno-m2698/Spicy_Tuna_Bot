@@ -1,0 +1,33 @@
+{
+    "embed":{
+        "title": "gamemode",
+        "description": "description",
+        "color": "color value",
+        "thumbnail": {
+            "url for player being accessed champion"
+        },
+        "author": {
+            "name": "discord bot",
+            "url": "url: not very sure on this one|not needed|or we can have it connect to repo page",
+            "icon_url": "url for icon"
+        },
+        "fields": [
+            {
+                "name": "team1",
+                "value": "team gold and global kda",
+                "inline": true
+            },
+            {
+                "name": "team2",
+                "value": "team gold and global kda",
+                "inline": true
+            },
+            {
+                "name": "might only need values for this one tbh, iterate this 10 times for each player"
+
+            }
+        ]
+
+    }
+
+}

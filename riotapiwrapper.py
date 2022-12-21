@@ -4,8 +4,13 @@ import sys
 
 riottoken = os.environ["RIOT_API_TOKEN"]
 
+
+def getBinaryFromSummonerInfo(condensed_data: dict, key: str, condition, tfValues: tuple):
+    value = condensed_data[key]
+    return tfValues[0] if value == condition else tfValues[1]
+
 class PlayerDTO():
-    def __init__(self, summoner_name: str, champion:str, kills: int, assists: int, deaths: int, gold: int, puuid: str) -> None:
+    def __init__(self, summoner_name: str, champion:str, kills: int, assists: int, deaths: int, gold: int, puuid: str, team_color) -> None:
         self.summoner_name=summoner_name
         self.champion = champion
         self.kills = kills
@@ -13,17 +18,25 @@ class PlayerDTO():
         self.deaths = deaths
         self.gold = gold
         self.puuid = puuid
+        self.team_color = team_color
         self.kda = round((self.kills + self.assists) / 1, 2) if self.deaths == 0 else round((self.kills + self.assists) / self.deaths, 2)
     
     def __str__(self) -> str:
-        return f'{self.summoner_name}: {self.champion} | KDA: {self.kills}/{self.deaths}/{self.assists}  ({self.kda})'
+        return f'KDA: {self.kills}/{self.deaths}/{self.assists}  ({self.kda})'
     
 class TeamDTO():
     def __init__(self,team: list) -> None:
         self.team = team
+        self.team_color = getBinaryFromSummonerInfo(self.team[0], key ='teamId', condition = 100, tfValues = ('🟦','🟥'))
         self.player_list = []
         for player in self.team:
-            self.player_list.append(PlayerDTO(player["summonerName"],player['championName'],player["kills"],player["assists"], player["deaths"], player['goldEarned'], player["puuid"]))
+
+            self.player_list.append(PlayerDTO(player["summonerName"],player['championName'],player["kills"],player["assists"], player["deaths"], player['goldEarned'], player["puuid"],self.team_color))
+        self.win = getBinaryFromSummonerInfo(self.team[0], key='win', condition=True,tfValues=('Win','Lose'))
+        
+        for player in self.team:
+            self.team_gold = player['goldEarned']
+
 
     def __str__(self) -> str:
         result = ''
@@ -32,11 +45,13 @@ class TeamDTO():
         return result
 
 class MatchDTO(): 
-    def __init__(self,data:tuple) -> None:
+    def __init__(self,data:tuple, gamemode: str, duration) -> None:
         self.data = data
         self.match = []
         for team in self.data:
             self.match.append(TeamDTO(team))
+        self.gamemode = gamemode
+        self.duration = round(duration/60, 2)
     
     def __str__(self) -> str:
         result = ""
@@ -44,6 +59,35 @@ class MatchDTO():
             for player in team.player_list:
                 result+=f'{player}\n'
             result+='\n'
+        return result
+
+    def createFieldsList(self)->list:
+        result = []
+        for team in self.match:
+            result.append({"name": 
+            f"{team.team_color}  Team Stats",
+            "value": f"🪙: {team.team_gold}g",
+            "inline": "true"})
+
+        for team in self.match:
+            for player in team.player_list:
+                result.append({"name": f"{player.team_color}  {player.summoner_name}: {player.champion}","value":f'{player} | gold: {player.gold}g'})
+
+        return result
+
+    def MatchDTOToJSON(self)->dict:
+        result = {
+            "title": f"{self.gamemode}",
+            "description": f"Length:{self.duration} mins",
+            "author": {
+                "name":"Spicy Tuna",
+                "url": "https://github.com/moreno-m2698/Spicy_Tuna_Bot",
+                "icon_url": "https://cdn.discordapp.com/embed/avatars/0.png"
+                },
+                "fields":self.createFieldsList()
+                }
+                
+
         return result
 
 
@@ -116,24 +160,20 @@ class RiotAPIWrapper():
             information_dict[key]=participant[key]
         return information_dict
 
+    # YOU NEED TO MAKE CASE FOR BOT GAMES: ONLY PRODUCES 5 PUUIDS AND THUS CAN NOT BE PROPERLY PASSED INTO THE DTO\
+
     def getMatchDTO(self, amount, summoner_name):
         all_game_data = self.SummonerNametoMatchList(amount, summoner_name)
         participants =all_game_data[0]["info"]["participants"] #Single element right now but will eventually have to think about loop implementation for a list of games
+        gamemode = all_game_data[0]["info"]["gameMode"]
+        duration = all_game_data[0]["info"]["gameDuration"]
         desired_data = list(map(self.getParticipantData, participants))
         team1 = [summoner for summoner in desired_data if desired_data.index(summoner)<=4]
         team2 = [summoner for summoner in desired_data if desired_data.index(summoner)>4]
         teams  = (team1, team2)
-        return MatchDTO(teams)
 
-    def getBinaryFromSummonerInfo(condensed_data: dict, key: str, condition, tfValues: tuple):
-        value = condensed_data[key]
-        return tfValues[0] if value == condition else tfValues[1]
-
-    def getPlayerGameStats(self, summoner_information):
-        game_stats = {}
-        game_stats['winlose'] = self.getBinaryFromSummonerInfo(summoner_information, key='win', condition=True,tfValues=('Win','Lose'))
-        game_stats['teamcolor'] = self.getBinaryFromSummonerInfo(summoner_information, key ='teamId', condition = 100, tfValues = ('🟦','🟥'))
-        return game_stats
+        return MatchDTO(teams, gamemode, duration)
+    
 
 
 # [3:00 PM]

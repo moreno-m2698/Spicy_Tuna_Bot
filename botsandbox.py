@@ -27,6 +27,10 @@ class MatchEmbed(discord.Embed):
     def __init__(self, colour, title, description) -> None:
         super().__init__(colour = colour, title = title, description=description)  
     #Match id index (newest game will be 0 and the oldest will be max index)
+# PROCESS:!!!!!!!!!!!!!
+    # 1. USE DTO TO CREATE JSON / DICT FILES THAT CAN THEN BE CONVERTED INTO EMBEDS
+    # 2. CREATE AND PASS LIST OF THESE JSON TO EMBED OBJECTS INTO THE VIEW TO THE INTERACT WITH BUTTONS
+    # 3. CREATE BUTTON FUNCTIONALITY
 
 class MatchDisplayView(View):
 
@@ -42,9 +46,14 @@ class MatchDisplayButton(Button):
 async def lolmatch(called_channel, summoner_name):
     wrapper = RiotAPIWrapper(riottoken)
     result = wrapper.getMatchDTO(1,summoner_name)
-    
+    jsonthing= result.MatchDTOToJSON()
 
-    embed = MatchEmbed(colour = discord.Colour.from_rgb(203,46,13), title = 'TEST',description = result) # Will display information for the game
+
+    embed = discord.Embed.from_dict(jsonthing)
+
+    
+    
+     # Will display information for the game
     view = discord.ui.View() # will be used to switch between games
     button1 = discord.ui.Button(label = 1, row=1)
     button2 =discord.ui.Button(label = 2, row = 1)
