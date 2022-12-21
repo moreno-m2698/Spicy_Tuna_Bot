@@ -22,10 +22,6 @@ async def on_ready():
 
 riottoken = os.environ["RIOT_API_TOKEN"]
 #team id = 100[blue] 200[red]
-
-class MatchEmbed(discord.Embed):
-    def __init__(self, colour, title, description) -> None:
-        super().__init__(colour = colour, title = title, description=description)  
     #Match id index (newest game will be 0 and the oldest will be max index)
 # PROCESS:!!!!!!!!!!!!!
     # 1. USE DTO TO CREATE JSON / DICT FILES THAT CAN THEN BE CONVERTED INTO EMBEDS
@@ -34,8 +30,10 @@ class MatchEmbed(discord.Embed):
 
 class MatchDisplayView(View):
 
-    def __init__(self) -> None:
+    def __init__(self, jsonthing) -> None:
         super().__init__()
+        self.embed = discord.Embed.from_dict(jsonthing)
+
 
 class MatchDisplayButton(Button):
     def __init__(self) -> None:
@@ -46,13 +44,10 @@ class MatchDisplayButton(Button):
 async def lolmatch(called_channel, summoner_name):
     wrapper = RiotAPIWrapper(riottoken)
     result = wrapper.getMatchDTO(1,summoner_name)
-    jsonthing= result.MatchDTOToJSON()
-
+    jsonthing= result.MatchDTOToJSON() #populate these into a list
 
     embed = discord.Embed.from_dict(jsonthing)
 
-    
-    
      # Will display information for the game
     view = discord.ui.View() # will be used to switch between games
     button1 = discord.ui.Button(label = 1, row=1)
@@ -61,5 +56,6 @@ async def lolmatch(called_channel, summoner_name):
     view.add_item(button2)
    
     await called_channel.send(embed = embed, view = view)
+
 
 bot.run(os.environ["DISCORD_TOKEN_BOT"])    
