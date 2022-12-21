@@ -3,6 +3,10 @@ import requests
 import sys
 
 riottoken = os.environ["RIOT_API_TOKEN"]
+def getBinaryFromSummonerInfo(condensed_data: dict, key: str, condition, tfValues: tuple):
+    value = condensed_data[key]
+    return tfValues[0] if value == condition else tfValues[1]
+
 
 class RiotAPIWrapper():
     def __init__(self,token) -> None:
@@ -36,7 +40,7 @@ class RiotAPIWrapper():
             print('invalid puuid or puuid accessed incorrect')
 
     # Converts match id to response holding match information
-    def getMatchList(self, match_id):
+    def getMatch(self, match_id) -> dict:
         base_url = 'https://americas.api.riotgames.com/lol/match/v5/matches/'
 
         try:
@@ -48,81 +52,60 @@ class RiotAPIWrapper():
             print('Match ID not found')
             return
 
-    # Melds methods together
-    def SummonertoMatchList(self,amount: int,name: str) -> list: 
+    def SummonerNametoMatchList(self,amount: int,name: str) -> list: # Gives list of 5v5 match IDs from summoner name
         puuid = self.getSummonerInformation(name)['puuid']
         match_id_list = self.getMatchIDByPUUID(puuid, amount)
         print(match_id_list)
         
         result = []
         for game in match_id_list:
-            result.append(self.getMatchList(game))
-            print(sys.getsizeof(self.getMatchList(game)))
+            result.append(self.getMatch(game))
+            print(sys.getsizeof(self.getMatch(game)))
             
         return result
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
     #Methods for extracting information from api responses pertaining to game data which are then used to help in creating the embed interface   
-     
-    def getPUUIDGameMetadataFromSummonerName(self,game_list: list):
-        response = game_list[0]
-        metadata_puuid_list = response["metadata"]["participants"]
-        return metadata_puuid_list
 
-    # THINK ABOUT TRYING TO MAKE A 2 ELEMENT LIST TO HOLD THE INFORMATION SO THAT WE DO NOT HAVE  TO CALL TWICE
+    # Create methods around accessing information thats relevant for player being used to access game information
+    #   important: all player information
 
-    def getGameInformationFromSummonerName(self, game_list:list):
-        response = game_list[0]
-        game_information_list = response["info"]["participants"]
-        return game_information_list
+    # Create methods for accessing general information for each player dto\\
 
-    def getSummonerGameInformation(self, game_list: list, summoner_name: str):
-        game_information = self.getGameInformationFromSummonerName(game_list)
-        puuid_metadata = self.getPUUIDGameMetadataFromSummonerName(game_list)
-        summoner_index = puuid_metadata.index(self.getSummonerInformation(summoner_name)['puuid'])
-        summoner_information = game_information[summoner_index]
-        return summoner_information
+     # Mapping function
+    def getParticipantData(self, participant:dict) -> dict: #In theory will reduce the big partcipant dict into something we want
+        wanted_keys = ["assists",'championName',"deaths","goldEarned","kills","puuid","summonerName","teamId","win"]
+        information_dict = {}
+        for key in wanted_keys:
+            information_dict[key]=participant[key]
+        return information_dict
 
-    def getGamemode(self,summoner_name) -> str:
-        information = self.SummonertoMatchList(1, summoner_name)[0]
-        gamemode = information['info']['gameMode']
-        return f'Gamemode: {gamemode}'
+    def getWantedGameData(self,all_game_data: dict) -> list: # This function will directly interact with getMatch web response
+        
+        participants = all_game_data[0]["info"]["participants"]
+        desired_data = map(self.getParticipantData, participants)
+        return list(desired_data)
 
-    def getPlayerChampionName(self, summoner_information):
-        champion_name = summoner_information["championName"]
-        return f'{summoner_information["summonerName"]}: {champion_name}'
+    def getWantedTeamData(self, condensed_game_data:list) -> tuple: #Returns a tuple that contains lists for the players of each team
+        team1 = [summoner for summoner in condensed_game_data if condensed_game_data.index(summoner)<=4]
+        team2 = [summoner for summoner in condensed_game_data if condensed_game_data.index(summoner)>4]
+        teams = (team1,team2)
+        return teams
 
-    def getPlayerKDA(self, summoner_information): # Add case for perfect game!!!
-        player_kills = summoner_information["kills"]
-        player_deaths = summoner_information["deaths"]
-        player_assists = summoner_information["assists"]
-        kda = f'{round((player_kills + player_assists) / player_deaths, 2)}:1'
-        return f'KDA: {kda}'
 
-    def getPlayerGold(self, summoner_information):
-        gold_earned = summoner_information["goldEarned"]
-        return f'Gold Earned: {gold_earned}'
 
-    def getBinaryFromSummonerInfo(self, summoner_information, key: str, condition, tfValues: tuple):
-        value = summoner_information[key]
-        return tfValues[0] if value == condition else tfValues[1]
 
     def getPlayerGameStats(self, summoner_information):
         game_stats = {}
-        game_stats['champion'] = self.getPlayerChampionName(summoner_information)
-        game_stats['kda'] = self.getPlayerKDA(summoner_information)
-        game_stats['gold'] = self.getPlayerGold(summoner_information)
-        game_stats['winlose'] = self.getBinaryFromSummonerInfo(summoner_information, key='win', condition=True,tfValues=('This guy won one','This guy a loser'))
-        game_stats['teamcolor'] = self.getBinaryFromSummonerInfo(summoner_information, key ='teamId', condition = 100, tfValues = ('🟦','🟥'))
+        game_stats['winlose'] = getBinaryFromSummonerInfo(summoner_information, key='win', condition=True,tfValues=('Win','Lose'))
+        game_stats['teamcolor'] = getBinaryFromSummonerInfo(summoner_information, key ='teamId', condition = 100, tfValues = ('🟦','🟥'))
         return game_stats
 
-    def organizePlayerstoTeams(self, summoner_name):
-        game_information = self.getGameInformationFromSummonerName(self.SummonertoMatchList(1, summoner_name))
-        team1 = [summoner['summonerName'] for summoner in game_information if game_information.index(summoner)<=4]
-        team2 = [summoner['summonerName'] for summoner in game_information if game_information.index(summoner)>4]
-        teams = (team1, team2)
-        return f'{teams}'
+
+
+
+
+
 
 # [3:00 PM]
 # - enemy champs
