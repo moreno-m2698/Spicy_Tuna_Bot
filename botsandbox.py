@@ -6,7 +6,7 @@ import json
 import asyncio
 from view.TicTacToeView import TicTacToeView
 from discord.ui import View, Button
-from riotapiwrapper import RiotAPIWrapper, getBinaryFromSummonerInfo
+from riotapiwrapper import RiotAPIWrapper
 
 myIntents = discord.Intents.default()
 myIntents.message_content = True
@@ -27,45 +27,6 @@ class MatchEmbed(discord.Embed):
     def __init__(self, colour, title, description) -> None:
         super().__init__(colour = colour, title = title, description=description)  
     #Match id index (newest game will be 0 and the oldest will be max index)
-        
-
-class PlayerDTO():
-    def __init__(self, summoner_name: str, champion:str, kills: int, assists: int, deaths: int, gold: int, puuid: str) -> None:
-        self.summoner_name=summoner_name
-        print(self.summoner_name)
-        self.champion = champion
-        self.kills = kills
-        self.assists = assists
-        self.deaths = deaths
-        self.gold = gold
-        self.puuid = puuid
-        self.kda = round((self.kills + self.assists) / 1, 2) if self.deaths == 0 else round((self.kills + self.assists) / self.deaths, 2)
-    
-    def __str__(self) -> str:
-        return f'{self.summoner_name}'
-    
-class TeamDTO():
-    def __init__(self,team: list) -> None:
-        self.team = team
-        self.player_list = []
-        for player in self.team:
-            self.player_list.append(PlayerDTO(player["summonerName"],player['championName'],player["kills"],player["assists"], player["deaths"], player['goldEarned'], player["puuid"]))
-
-    def __str__(self) -> str:
-        result = ''
-        for player in self.team:
-            result+=f'{player}\n'
-        return result
-
-class MatchDTO(): 
-    def __init__(self,data:tuple) -> None:
-        self.data = data
-        self.match = []
-        for team in self.data:
-            self.match.append(TeamDTO(team))
-    
-    def __str__(self) -> str:
-        return f'{self.match}'
 
 class MatchDisplayView(View):
 
@@ -80,12 +41,11 @@ class MatchDisplayButton(Button):
 @bot.command()
 async def lolmatch(called_channel, summoner_name):
     wrapper = RiotAPIWrapper(riottoken)
-    result = MatchDTO(wrapper.getWantedTeamData(wrapper.getWantedGameData(wrapper.SummonerNametoMatchList(1, summoner_name))))
+    result = wrapper.getMatchDTO(1,summoner_name)
     description = ''
     for team in result.match:
         for player in team.player_list:
             description+=f'{player}\n'
-            
 
     embed = MatchEmbed(colour = 1, title = 'TEST',description = description) # Will display information for the game
     view = discord.ui.View() # will be used to switch between games

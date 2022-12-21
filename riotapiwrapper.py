@@ -3,9 +3,43 @@ import requests
 import sys
 
 riottoken = os.environ["RIOT_API_TOKEN"]
-def getBinaryFromSummonerInfo(condensed_data: dict, key: str, condition, tfValues: tuple):
-    value = condensed_data[key]
-    return tfValues[0] if value == condition else tfValues[1]
+
+class PlayerDTO():
+    def __init__(self, summoner_name: str, champion:str, kills: int, assists: int, deaths: int, gold: int, puuid: str) -> None:
+        self.summoner_name=summoner_name
+        self.champion = champion
+        self.kills = kills
+        self.assists = assists
+        self.deaths = deaths
+        self.gold = gold
+        self.puuid = puuid
+        self.kda = round((self.kills + self.assists) / 1, 2) if self.deaths == 0 else round((self.kills + self.assists) / self.deaths, 2)
+    
+    def __str__(self) -> str:
+        return f'{self.summoner_name}'
+    
+class TeamDTO():
+    def __init__(self,team: list) -> None:
+        self.team = team
+        self.player_list = []
+        for player in self.team:
+            self.player_list.append(PlayerDTO(player["summonerName"],player['championName'],player["kills"],player["assists"], player["deaths"], player['goldEarned'], player["puuid"]))
+
+    def __str__(self) -> str:
+        result = ''
+        for player in self.team:
+            result+=f'{player}\n'
+        return result
+
+class MatchDTO(): 
+    def __init__(self,data:tuple) -> None:
+        self.data = data
+        self.match = []
+        for team in self.data:
+            self.match.append(TeamDTO(team))
+    
+    def __str__(self) -> str:
+        return f'{self.match}'
 
 
 class RiotAPIWrapper():
@@ -84,7 +118,7 @@ class RiotAPIWrapper():
         
         participants = all_game_data[0]["info"]["participants"]
         desired_data = map(self.getParticipantData, participants)
-        return list(desired_data)
+        return list(desired_data) #list of dicts
 
     def getWantedTeamData(self, condensed_game_data:list) -> tuple: #Returns a tuple that contains lists for the players of each team
         team1 = [summoner for summoner in condensed_game_data if condensed_game_data.index(summoner)<=4]
@@ -92,19 +126,18 @@ class RiotAPIWrapper():
         teams = (team1,team2)
         return teams
 
+    def getMatchDTO(self, amount, summoner_name):
+        return MatchDTO(self.getWantedTeamData(self.getWantedGameData(self.SummonerNametoMatchList(1, summoner_name))))
 
-
+    def getBinaryFromSummonerInfo(condensed_data: dict, key: str, condition, tfValues: tuple):
+        value = condensed_data[key]
+        return tfValues[0] if value == condition else tfValues[1]
 
     def getPlayerGameStats(self, summoner_information):
         game_stats = {}
-        game_stats['winlose'] = getBinaryFromSummonerInfo(summoner_information, key='win', condition=True,tfValues=('Win','Lose'))
-        game_stats['teamcolor'] = getBinaryFromSummonerInfo(summoner_information, key ='teamId', condition = 100, tfValues = ('🟦','🟥'))
+        game_stats['winlose'] = self.getBinaryFromSummonerInfo(summoner_information, key='win', condition=True,tfValues=('Win','Lose'))
+        game_stats['teamcolor'] = self.getBinaryFromSummonerInfo(summoner_information, key ='teamId', condition = 100, tfValues = ('🟦','🟥'))
         return game_stats
-
-
-
-
-
 
 
 # [3:00 PM]
