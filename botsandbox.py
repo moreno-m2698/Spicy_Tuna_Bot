@@ -29,33 +29,70 @@ riottoken = os.environ["RIOT_API_TOKEN"]
     # 3. CREATE BUTTON FUNCTIONALITY
 
 class MatchDisplayView(View):
+    #◀️▶️
+    def __init__(self, match_id_list,wrapper, summoner_name,context) -> None:
+        super().__init__(timeout= 10)
+        self.wrapper = wrapper
+        self.match_id_list = match_id_list
+        self.summoner_name = summoner_name
+        self.context = context
+        self.embed_list = []
+        for match_id in self.match_id_list:
+            self.embed_list.append(discord.Embed.from_dict(self.wrapper.getMatchDTOFromMatchID(match_id, self.summoner_name).MatchDTOToJSON()))
+        self.max_index = len(self.embed_list)
+        for index in range(len(self.embed_list)):
+            self.embed_list[index].set_footer(text =f"Game: {index+1} / {self.max_index}")
 
-    def __init__(self, jsonthing) -> None:
-        super().__init__()
-        self.embed = discord.Embed.from_dict(jsonthing)
+        self.current_embed = self.embed_list[0]
+        self.current_index = self.embed_list.index(self.current_embed)
+        print(self.current_index)
+        
+        print(self.max_index)
+        self.add_item(LeftMatchDisplayButton(self))
+        self.add_item(RightMatchDisplayButton(self))
+    
+    async def on_timeout(self):
+    
+        await self.context.send(content = 'Timeout', embed =None)
 
+class RightMatchDisplayButton(Button):
+    def __init__(self, match_view: MatchDisplayView):
+        super().__init__(style=discord.ButtonStyle.grey, label ='▶️', row = 0)
+        self.match_view = match_view
+    
+    
+    async def callback(self, interaction):
+        self.match_view.current_index += 1
+        if self.match_view.current_index == self.match_view.max_index - 1:
+            self.disabled = True
+        if self.match_view.children[0].disabled ==True:
+            self.match_view.children[0].disabled = False
+        self.match_view.current_embed = self.match_view.embed_list[self.view.current_index]
+        await interaction.response.edit_message(content = "press test", embed = self.match_view.current_embed, view = self.match_view)
+    
+class LeftMatchDisplayButton(Button):
+    def __init__(self, match_view: MatchDisplayView):
+        super().__init__(style=discord.ButtonStyle.grey, label ='◀️', row = 0, disabled = True)
+        self.match_view = match_view
 
-class MatchDisplayButton(Button):
-    def __init__(self) -> None:
-        super().__init__()
+    async def callback(self, interaction):
+        self.match_view.current_index -= 1
+        if self.match_view.current_index == 0:
+            self.disabled = True
+        
+        if self.match_view.children[1].disabled ==True:
+            self.match_view.children[1].disabled = False
+        
+        
+        self.match_view.current_embed = self.match_view.embed_list[self.match_view.current_index]
+        await interaction.response.edit_message(content = "test", embed = self.match_view.current_embed, view = self.match_view)
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 @bot.command()
 async def lolmatch(called_channel, summoner_name):
     wrapper = RiotAPIWrapper(riottoken)
-    result = wrapper.getMatchDTO(1,summoner_name)
-    jsonthing= result.MatchDTOToJSON() #populate these into a list
-
-    embed = discord.Embed.from_dict(jsonthing)
-
-     # Will display information for the game
-    view = discord.ui.View() # will be used to switch between games
-    button1 = discord.ui.Button(label = 1, row=1)
-    button2 =discord.ui.Button(label = 2, row = 1)
-    view.add_item(button1)
-    view.add_item(button2)
-   
-    await called_channel.send(embed = embed, view = view)
+    view = MatchDisplayView(wrapper.SummonerNametoMatchList(amount = 10, name =summoner_name), wrapper, summoner_name, called_channel)
+    await called_channel.send(embed = view.current_embed, view = view)
 
 
 bot.run(os.environ["DISCORD_TOKEN_BOT"])    
