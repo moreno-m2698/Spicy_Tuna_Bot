@@ -42,12 +42,8 @@ class MatchDisplayView(View):
         self.max_index = len(self.embed_list)
         for index in range(len(self.embed_list)):
             self.embed_list[index].set_footer(text =f"Game: {index+1} / {self.max_index}")
-
         self.current_embed = self.embed_list[0]
         self.current_index = self.embed_list.index(self.current_embed)
-        print(self.current_index)
-        
-        print(self.max_index)
         self.add_item(LeftMatchDisplayButton(self))
         self.add_item(RightMatchDisplayButton(self))
     
@@ -64,7 +60,7 @@ class RightMatchDisplayButton(Button):
         self.match_view.current_index += 1
         if self.match_view.current_index == self.match_view.max_index - 1:
             self.disabled = True
-        if self.match_view.children[0].disabled ==True:
+        if self.match_view.children[0].disabled:
             self.match_view.children[0].disabled = False
         self.match_view.current_embed = self.match_view.embed_list[self.view.current_index]
         await interaction.response.edit_message(content = "", embed = self.match_view.current_embed, view = self.match_view)
@@ -79,7 +75,7 @@ class LeftMatchDisplayButton(Button):
         if self.match_view.current_index == 0:
             self.disabled = True
         
-        if self.match_view.children[1].disabled ==True:
+        if self.match_view.children[1].disabled:
             self.match_view.children[1].disabled = False
         
         
@@ -92,9 +88,7 @@ async def lolmatch(called_channel, summoner_name):
     wrapper = RiotAPIWrapper(riottoken)
     await called_channel.send(content = "GATHERING DATA...")
     async with called_channel.typing():
-        view = MatchDisplayView(wrapper.SummonerNametoMatchList(amount = 5, name =summoner_name), wrapper, summoner_name, called_channel)
-
+        view = MatchDisplayView(wrapper.SummonerNametoMatchList(amount = 10, name =summoner_name), wrapper, summoner_name, called_channel)
     await called_channel.send(embed = view.current_embed, view = view)
-
 
 bot.run(os.environ["DISCORD_TOKEN_BOT"])    

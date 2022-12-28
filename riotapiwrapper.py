@@ -173,7 +173,7 @@ class RiotAPIWrapper():
 
         # Mapping function!!!!!!
     def getParticipantData(self, participant:dict) -> dict: #In theory will reduce the big partcipant dict into something we want
-        wanted_keys = ["assists","baronKills", 'championName',"deaths","dragonKills","goldEarned","kills", "neutralMinionsKilled","puuid","summonerName","teamId","totalMinionsKilled","turretKills","win"]
+        wanted_keys = ["assists","baronKills", "championName","deaths","dragonKills","goldEarned","kills", "neutralMinionsKilled","puuid","summonerName","teamId","totalMinionsKilled","turretKills","win"]
         information_dict = {}
         for key in wanted_keys:
             information_dict[key]=participant[key]
@@ -198,15 +198,7 @@ class RiotAPIWrapper():
         teams  = (team1, team2)
 
         return MatchDTO(teams, gamemode, duration, mainPlayer)
-    
-    # Need match dto to process a list 
 
-# [3:00 PM]
-# - turrets taken
-# [3:01 PM]
-# - expand info - rune info
-# [3:01 PM]
-# expand info - items
 
 wrapper = RiotAPIWrapper(riottoken)
 
