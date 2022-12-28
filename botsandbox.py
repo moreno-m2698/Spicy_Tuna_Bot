@@ -31,7 +31,7 @@ riottoken = os.environ["RIOT_API_TOKEN"]
 class MatchDisplayView(View):
     #◀️▶️
     def __init__(self, match_id_list,wrapper, summoner_name,context) -> None:
-        super().__init__(timeout= 10)
+        super().__init__()
         self.wrapper = wrapper
         self.match_id_list = match_id_list
         self.summoner_name = summoner_name
@@ -52,8 +52,7 @@ class MatchDisplayView(View):
         self.add_item(RightMatchDisplayButton(self))
     
     async def on_timeout(self):
-    
-        await self.context.send(content = 'Timeout', embed =None)
+        await self.context.send(content = "Session Over")
 
 class RightMatchDisplayButton(Button):
     def __init__(self, match_view: MatchDisplayView):
@@ -68,7 +67,7 @@ class RightMatchDisplayButton(Button):
         if self.match_view.children[0].disabled ==True:
             self.match_view.children[0].disabled = False
         self.match_view.current_embed = self.match_view.embed_list[self.view.current_index]
-        await interaction.response.edit_message(content = "press test", embed = self.match_view.current_embed, view = self.match_view)
+        await interaction.response.edit_message(content = "", embed = self.match_view.current_embed, view = self.match_view)
     
 class LeftMatchDisplayButton(Button):
     def __init__(self, match_view: MatchDisplayView):
@@ -85,13 +84,16 @@ class LeftMatchDisplayButton(Button):
         
         
         self.match_view.current_embed = self.match_view.embed_list[self.match_view.current_index]
-        await interaction.response.edit_message(content = "test", embed = self.match_view.current_embed, view = self.match_view)
+        await interaction.response.edit_message(content = "", embed = self.match_view.current_embed, view = self.match_view)
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 @bot.command()
 async def lolmatch(called_channel, summoner_name):
     wrapper = RiotAPIWrapper(riottoken)
-    view = MatchDisplayView(wrapper.SummonerNametoMatchList(amount = 10, name =summoner_name), wrapper, summoner_name, called_channel)
+    await called_channel.send(content = "GATHERING DATA...")
+    async with called_channel.typing():
+        view = MatchDisplayView(wrapper.SummonerNametoMatchList(amount = 5, name =summoner_name), wrapper, summoner_name, called_channel)
+
     await called_channel.send(embed = view.current_embed, view = view)
 
 

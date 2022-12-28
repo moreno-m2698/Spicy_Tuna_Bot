@@ -38,8 +38,19 @@ class TeamDTO():
 
         self.win = getBinaryFromSummonerInfo(self.team[0], key='win', condition=True,tfValues=(True,False))
         self.team_gold = 0
+        self.dragons = 0
+        self.barons = 0
+        self.total_turrets = 0
+        self.total_kills = 0
         for player in self.team:
             self.team_gold += player['goldEarned']
+            self.total_turrets += player["turretKills"]
+            self.barons += player["baronKills"]
+            self.dragons+=player["dragonKills"]
+            self.total_kills += player["kills"]
+
+
+
     
     def winnerCrown(self) -> str:
         if self.win == True:
@@ -79,7 +90,7 @@ class MatchDTO():
         for team in self.match:
             result.append({"name": 
             f"{team.team_color}  Team Stats {team.winnerCrown()}",
-            "value": f"🪙: {team.team_gold}g",
+            "value": f"🪙: {team.team_gold}g\nKills: {team.total_kills}\nDragons: {team.dragons}\nBarons: {team.barons}\nTurrets: {team.total_turrets}",
             "inline": "true"})
         for team in self.match:
             for player in team.player_list:
@@ -162,7 +173,7 @@ class RiotAPIWrapper():
 
         # Mapping function!!!!!!
     def getParticipantData(self, participant:dict) -> dict: #In theory will reduce the big partcipant dict into something we want
-        wanted_keys = ["assists",'championName',"deaths","goldEarned","kills", "neutralMinionsKilled","puuid","summonerName","teamId","totalMinionsKilled","win"]
+        wanted_keys = ["assists","baronKills", 'championName',"deaths","dragonKills","goldEarned","kills", "neutralMinionsKilled","puuid","summonerName","teamId","totalMinionsKilled","turretKills","win"]
         information_dict = {}
         for key in wanted_keys:
             information_dict[key]=participant[key]
