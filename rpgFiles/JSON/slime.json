@@ -1,0 +1,75 @@
+{"Slime": {
+    "Blue": {
+        "atk": 7,
+        "defense": 2,
+        "maxHp": 25,
+        "magic": 0,
+        "level": 0,
+        "agil": 0,
+        "luck": 0,
+        "drops": { 
+            "1000" : {
+                "cycles": 2,
+                "chance": 1
+        },
+        "1001" : {
+            "cycles": 2,
+            "chance": 1
+    }
+        }
+        },
+    "Green": {
+        "atk": 6,
+        "defense": 0,
+        "maxHp": 14,
+        "magic": 0,
+        "level": 0,
+        "agil": 0,
+        "luck": 0,
+        "drops": { 
+            "1000" : {
+                "cycles": 2,
+                "chance": 1
+        },
+        "1001" : {
+            "cycles": 2,
+            "chance": 1
+    }
+        }
+        },
+    "Red":{
+        "atk": 12,
+        "defense": 4,
+        "maxHp": 35,
+        "magic": 0,
+        "level": 0,
+        "agil": 0,
+        "luck": 0,
+        "drops": { 
+            "1000" : {
+                "cycles": 2,
+                "chance": 1
+        },
+        "1001" : {
+            "cycles": 2,
+            "chance": 1
+    }
+        }
+        },    "Demon":{
+            "atk": 1000,
+            "defense": 1000,
+            "maxHp": 1000,
+            "magic": 0,
+            "level": 0,
+            "agil": 0,
+            "luck": 0,
+            "drops": { 
+                "1000" : {
+                    "cycles": 2,
+                    "chance": 1
+            },
+            "1001" : {
+                "cycles": 2,
+                "chance": 1
+
+        }}}}}

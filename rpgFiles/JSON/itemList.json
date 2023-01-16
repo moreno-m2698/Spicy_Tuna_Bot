@@ -1,0 +1,20 @@
+{
+    "1000" : {
+    "description": "Instantly heals for 20 HP - Single time use.",
+    "name": "Health Pot",
+    "useId": "20heal"
+    
+},
+"1001" : {
+    "description": "Throws a rock for 10 HP - Single time use.",
+    "name": "Rock",
+    "useId": "throwrock"
+    
+},
+"1002" : {
+    "description": "Instantly restores 10 MP - Single time use.",
+    "name": "Mana Pot",
+    "useId": "10mana"
+
+}
+}

@@ -1,0 +1,49 @@
+{
+    "Slash": 
+    {
+        "description": "Uses your strength to deliver a strong vertical slash on an enemy.",
+        "cost": "5",
+        "useId": "slashftn"
+    },
+    "Lesser Heal":
+    {
+        "description": "Uses a small portion of mana to restore a bit of health.",
+        "cost": "4",
+        "useId": "smallhealftn"
+    },
+    "Icicle":
+    {
+        "description": "Launches a icicle of sheer cold at the enemy.",
+        "cost": "4",
+        "useId": "icicleftn"
+    },
+    "Ram":
+    {
+        "description": "Launch your body into an opponent to deal damage.",
+        "cost": "5",
+        "useId": "ramftn"
+    },
+    "Fireball":
+    {
+        "description": "Conjour a fireball and launch it at your enemy.",
+        "cost": "fireballmp",
+        "useId": "fireballftn"
+    },
+    "Soul Arrow":{
+
+    },
+    "Focus":
+    {
+
+    },
+    "Drain":{
+
+    },
+    "Maul":
+    {
+
+    },
+    "Frenzy":{
+        
+    }
+}

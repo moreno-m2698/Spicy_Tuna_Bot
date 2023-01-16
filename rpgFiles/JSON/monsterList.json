@@ -1,0 +1,218 @@
+{"Slime": {
+    "Blue": {
+        "atk": 7,
+        "defense": 2,
+        "maxHp": 25,
+        "magic": 0,
+        "level": 0,
+        "agil": 0,
+        "luck": 0,
+        "drops": { 
+            "1001" : {
+                "cycles": 2,
+                "chance": 1
+        }
+        }
+        },
+    "Green": {
+        "atk": 6,
+        "defense": 0,
+        "maxHp": 14,
+        "magic": 0,
+        "level": 0,
+        "agil": 0,
+        "luck": 0,
+        "drops": { 
+            "1001" : {
+                "cycles": 2,
+                "chance": 1
+        }
+        }
+        },
+    "Red":{
+        "atk": 12,
+        "defense": 4,
+        "maxHp": 35,
+        "magic": 0,
+        "level": 0,
+        "agil": 0,
+        "luck": 0,
+        "drops": { 
+            "1001" : {
+                "cycles": 2,
+                "chance": 1
+        }
+        }
+        },
+    "Purple":{
+        "atk": 12,
+        "defense": 6,
+        "maxHp": 40,
+        "magic": 0,
+        "level": 0,
+        "agil": 0,
+        "luck": 0,
+        "drops": { 
+            "1001" : {
+                "cycles": 2,
+                "chance": 1
+        }
+        }
+        },
+    "Yellow":{
+        "atk": 15,
+        "defense": 7,
+        "maxHp": 45,
+        "magic": 0,
+        "level": 0,
+        "agil": 0,
+        "luck": 0,
+        "drops": { 
+            "1001" : {
+                "cycles": 2,
+                "chance": 1
+        
+        }    
+        }
+        },
+    "Black": {
+        "atk": 15,
+        "defense": 4,
+        "maxHp": 45,
+        "magic": 0,
+        "level": 0,
+        "agil": 0,
+        "luck": 0,
+        "drops": { 
+            "1001" : {
+                "cycles": 2,
+                "chance": 1
+        }
+        }
+        },
+    "Golden": {
+        "atk": 2,
+        "defense": 5,
+        "maxHp": 300,
+        "magic": 0,
+        "level": 0,
+        "agil": 0,
+        "luck": 0,
+        "drops": { 
+            "1001" : {
+                "cycles": 2,
+                "chance": 1
+        }
+        }
+        }
+    },
+"Zombie": {
+    "Warrior": {
+        "atk": 14,
+        "defense": 6,
+        "maxHp": 45,
+        "magic": 0,
+        "level": 0,
+        "agil": 1,
+        "luck": 0,
+        "drops": { 
+            "1001" : {
+                "cycles": 2,
+                "chance": 1
+        }
+        }
+        },
+    "Paladin":{
+        "atk":9,
+        "defense": 1,
+        "maxHp": 60,
+        "magic": 0,
+        "level": 0,
+        "agil": 1,
+        "luck": 0,
+        "drops": { 
+            "1001" : {
+                "cycles": 2,
+                "chance": 1
+        }
+        }
+        },
+    "Wizard": {
+        "atk": 9,
+        "defense": 4,
+        "maxHp": 55,
+        "magic": 15,
+        "level": 0,
+        "agil": 1,
+        "luck": 0,
+        "drops": { 
+            "1001" : {
+                "cycles": 2,
+                "chance": 1
+        }
+        }
+        }
+    },
+"Skeleton": {
+    "Warrior": {
+        "atk": 20,
+        "defense": 8,
+        "maxHp": 66,
+        "magic": 0,
+        "level": 0,
+        "agil": 1,
+        "luck": 0,
+        "drops": { 
+            "1001" : {
+                "cycles": 2,
+                "chance": 1
+        }
+        }
+        },
+    "Paladin":{
+        "atk":14,
+        "defense": 12,
+        "maxHp": 80,
+        "magic": 0,
+        "level": 0,
+        "agil": 1,
+        "luck": 0,
+        "drops": { 
+            "1001" : {
+                "cycles": 2,
+                "chance": 1
+        }
+        }
+        },
+    "Wizard": {
+        "atk": 10,
+        "defense": 6,
+        "maxHp": 58,
+        "magic": 20,
+        "level": 0,
+        "agil": 1,
+        "luck": 0,
+        "drops": { 
+            "1001" : {
+                "cycles": 2,
+                "chance": 1
+        }
+        }
+        },
+    "Archer": {
+        "atk": 14,
+        "defense": 6,
+        "maxHp": 58,
+        "magic": 20,
+        "level": 0,
+        "agil": 3,
+        "luck": 0,
+        "drops": { 
+            "1001" : {
+                "cycles": 2,
+                "chance": 1
+        }
+        }
+        }
+}
+}

@@ -1,0 +1,37 @@
+{"Warrior":{
+    "atk": 14,
+    "defense": 13,
+    "maxHp": 100,
+    "magic": 14,
+    "level": 5,
+    "agil": 1,
+    "luck": 0,
+    "maxMana": 30,
+    "moves": 
+    [
+        "Slash", "Fireball", "Lesser Heal"
+    ]
+
+},
+"Paladin": {
+    "atk": 13,
+    "defense": 16,
+    "maxHp": 115,
+    "magic": 15,
+    "level": 5,
+    "agil": 1,
+    "luck": 0,
+    "maxMana": 35,
+    "moves": 
+    [
+        "Ram", "Icicle", "Lesser Heal"
+    ]
+},
+"Mage": {
+
+},
+"Undead":{
+    
+}
+
+}
