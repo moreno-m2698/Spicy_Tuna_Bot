@@ -28,10 +28,32 @@
     ]
 },
 "Mage": {
-
+    "atk": 13,
+    "defense": 16,
+    "maxHp": 115,
+    "magic": 15,
+    "level": 5,
+    "agil": 1,
+    "luck": 0,
+    "maxMana": 35,
+    "moves": 
+    [
+        "Ram", "Icicle", "Lesser Heal"
+    ]
 },
 "Undead":{
-    
+    "atk": 13,
+    "defense": 16,
+    "maxHp": 115,
+    "magic": 15,
+    "level": 5,
+    "agil": 1,
+    "luck": 0,
+    "maxMana": 35,
+    "moves": 
+    [
+        "Ram", "Icicle", "Lesser Heal"
+    ]
 }
 
 }
