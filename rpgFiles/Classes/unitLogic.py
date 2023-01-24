@@ -49,39 +49,4 @@ class Unit:
             return target.currentHp
         
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    #def attack(self, target): ***This was an experiment with ternary operators
-        # damage = 0
-        # #ternary operator example
-        # modifier = (critChance == 9) if 2 else 1
-        # damage = self.atk * 100 / (100 + slime.defense) * modifier
-        # # damage = self.atk * 100 / (100 + slime.defense) * ((critChance == 9) if 2 else 1)
-        # hitString = (critChance == 9) if f"Slime got critically hit for {damage}." else f"Slime got hit for {damage}."
-        # print(hitString)
-    
-    
-    # def generateMonsterJSON():
-    #     monsterFile = open('JSON/monsterList.json')
-    #     monsterSelect = json.load(monsterFile)
-
-    #     slime = monsterSelect[0]
-
-
-    #     return Monster(slime['atk'], slime['defense'], slime['maxHp'], slime['currentHp'], slime['type'])
-       
-
-    # come back and work on how to spawn in units later
-
 

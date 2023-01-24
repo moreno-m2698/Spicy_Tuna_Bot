@@ -1,8 +1,8 @@
 import random
 import math
-from Classes.unitLogic import Unit
+from rpgFiles.Classes.unitLogic import Unit
 import json
-from Classes.playerLogic import Hero
+from rpgFiles.Classes.playerLogic import Hero
 
 class Monster(Unit):
     def __init__(self, name: str, atk: int, defense: int, maxHp: int, magic: int, level: int, agil: int, luck: int, drops: dict):

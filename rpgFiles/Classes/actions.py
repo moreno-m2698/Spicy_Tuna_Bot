@@ -1,7 +1,7 @@
 import random
 import json
 from dataclasses import dataclass
-from Classes.unitLogic import Unit
+from rpgFiles.Classes.unitLogic import Unit
 
 
         

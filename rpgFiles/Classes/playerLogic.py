@@ -1,8 +1,8 @@
 import random
 import math
-from Classes.unitLogic import Unit
+from rpgFiles.Classes.unitLogic import Unit
 import json
-from Classes.actions import MoveFuncs, Specials
+from rpgFiles.Classes.actions import MoveFuncs, Specials
 
 
 

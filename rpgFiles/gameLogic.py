@@ -1,14 +1,14 @@
 import random
 import json
 import math
-from Classes.actions import Item
+from rpgFiles.Classes.actions import Item
 
-from Classes.playerLogic import Hero
-from Classes.monsterLogic import Monster
-from Classes.actions import ItemFuncs, MoveFuncs, Specials
+from rpgFiles.Classes.playerLogic import Hero
+from rpgFiles.Classes.monsterLogic import Monster
+from rpgFiles.Classes.actions import ItemFuncs, MoveFuncs, Specials
 
 def encounter():
-    fileInUse = 'JSON/slime.json'
+    fileInUse = 'rpgFiles/JSON/slime.json'
     monster1 = Monster.generateMonsterJSON(fileInUse)
     monster2 = Monster.generateMonsterJSON(fileInUse)
     while monster1.name == monster2.name:
@@ -26,6 +26,15 @@ def encounter():
             return monster2
         else:
             print('Please give a valid value')
+
+def discord_encounter():
+    fileInUse = 'rpgFiles/JSON/slime.json'
+    monster1 = Monster.generateMonsterJSON(fileInUse)
+    monster2 = Monster.generateMonsterJSON(fileInUse)
+    while monster1.name == monster2.name:
+        monster2 = Monster.generateMonsterJSON(fileInUse)
+    return (monster1, monster2)
+
 
 def rewards(hero, monster):
         #This caused an issue:

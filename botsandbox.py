@@ -7,6 +7,8 @@ import asyncio
 from discord.ui import View, Button, TextInput, Modal
 # from rpgFiles.Classes.monsterLogic import Monster
 import psycopg2
+from rpgFiles.Classes.monsterLogic import Monster
+from rpgFiles.gameLogic import discord_encounter
 
 
 myIntents = discord.Intents.default()
@@ -97,7 +99,7 @@ class MyModal(discord.ui.Modal):
 class MyView(discord.ui.View):
     @discord.ui.button(label = "Login")
     async def button_callback(self, interaction, button):
-        await interaction.response.send_modal(LoginModal())
+        await interaction.response.send_modal(MyModal())
 
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -112,11 +114,46 @@ class Class_Select_Embed(discord.Embed):
 
 
 @bot.command()
-async def classes(context_channel):
+async def classes(context_channel): # This is what allows the player to choose there class when initially starting an account
     class_select = discord.ui.Select(placeholder="Choose a class!", min_values=1, max_values=1, options=[discord.SelectOption(label = "Warrior", value = "Warrior"), discord.SelectOption(label = "Paladin", value = "Paladin")])
+    async def class_select_callback(interaction):
+        embed = discord.Embed(title = f"You chose the {class_select.values[0]} class!", description = "You're all set! Use the !hunt command to gain experience and level up.")
+        await interaction.response.edit_message(content = f'You chose to be a {class_select.values[0]}', view = None, embed = embed)
+
+    class_select.callback = class_select_callback
     view = discord.ui.View()
     view.add_item(class_select)
+    async def interaction_check(interaction):
+        if interaction.user != context_channel.author:
+            await interaction.response.send_message(content = "This is not your instance!", ephemeral=True)
+            return False
+        else:
+            return True
+    view.interaction_check=interaction_check
+
     await context_channel.send(embed = Class_Select_Embed(), view = view)
+
+@bot.command() # Use this to look at current player inventory
+async def inventory(context_channel):
+    pass
+
+@bot.command() # Use this to look at current player stats
+async def profile(context_channel):
+    pass
+
+@bot.command()
+async def hunt(context_channel):
+    options = discord_encounter()
+    monster_select_embed=discord.Embed(title = "You come across a large clearing", description = "You come across two monsters!")
+    monster_select_embed.add_field(name = options[0].name, value = 1)
+    monster_select_embed.add_field(name = options[1].name, value = 2)
+    option_select=discord.ui.Select(placeholder="Which do you choose?", min_values=1, max_values=1, options = [discord.SelectOption(label = options[0].name, value = 1), discord.SelectOption(label = options[1].name, value = 2)])
+    view = discord.ui.View()
+    view.add_item(option_select)
+
+    await context_channel.send(embed = monster_select_embed, view = view)
+
+
     
 
 
