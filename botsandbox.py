@@ -10,6 +10,12 @@ import psycopg2
 from rpgFiles.Classes.monsterLogic import Monster
 from rpgFiles.gameLogic import discord_encounter
 
+class RpgPlayer(discord.User): # This is the shell that will allow us to run the game logic and store information
+    pass
+
+
+
+
 
 myIntents = discord.Intents.default()
 myIntents.message_content = True
@@ -118,6 +124,7 @@ async def classes(context_channel): # This is what allows the player to choose t
     class_select = discord.ui.Select(placeholder="Choose a class!", min_values=1, max_values=1, options=[discord.SelectOption(label = "Warrior", value = "Warrior"), discord.SelectOption(label = "Paladin", value = "Paladin")])
     async def class_select_callback(interaction):
         embed = discord.Embed(title = f"You chose the {class_select.values[0]} class!", description = "You're all set! Use the !hunt command to gain experience and level up.")
+        embed.set_thumbnail(url = interaction.user.avatar)
         await interaction.response.edit_message(content = f'You chose to be a {class_select.values[0]}', view = None, embed = embed)
 
     class_select.callback = class_select_callback
@@ -141,53 +148,30 @@ async def inventory(context_channel):
 async def profile(context_channel):
     pass
 
+class FightEmbed(discord.Embed):
+    def __init__(self, monster):
+        super().__init__(title = "YOU'RE BEING ATTACKED!", description = f"You decided to fight the {monster.name}") #make the thumbnail a photo of the monster and the inlines your skills and etc
+
 @bot.command()
-async def hunt(context_channel):
+async def hunt(context_channel): #This is what will allow you to hunt monsters
+
+    # Need to create an if to see if the player already has a monster attached to them
+        # Isekaid creates a new embed without deleting the old one which will ask to see if the current view is still active (commands are initialized via text to do this)
+        # I want to see if i can do this with buttons but might not be possible since their method takes advantage of view timeouts most likely
+
     options = discord_encounter()
     monster_select_embed=discord.Embed(title = "You come across a large clearing", description = "You come across two monsters!")
     monster_select_embed.add_field(name = options[0].name, value = 1)
     monster_select_embed.add_field(name = options[1].name, value = 2)
     option_select=discord.ui.Select(placeholder="Which do you choose?", min_values=1, max_values=1, options = [discord.SelectOption(label = options[0].name, value = 1), discord.SelectOption(label = options[1].name, value = 2)])
+    async def option_select_callback(): # This will create the embed that uses the information decided by the player to fight the monster
+        pass
+    
+    
     view = discord.ui.View()
     view.add_item(option_select)
 
     await context_channel.send(embed = monster_select_embed, view = view)
-
-
-    
-
-
-
-
-
-
-
-@bot.command()
-async def testing(called_channel):
-    # sending the modal on an interaction (can be slash, buttons, or select menus)
-    modal = MyModal()
-    await called_channel.send(modal)
-
-def create_monster_choice_embed() -> discord.ui.View:
-    
-    fileInUse = 'JSON/slime.json'
-    monster1 = Monster.generateMonsterJSON(fileInUse)
-    monster2 = Monster.generateMonsterJSON(fileInUse)
-    while monster1.name == monster2.name:
-        monster2 = Monster.generateMonsterJSON(fileInUse)
-
-    # We can try and create a folder to accompany this so we can try and make it more visual.
-
-
-    choose1 = discord.ui.Button()
-        #Call back will return a monster and also delete embed
-
-    choose2 = discord.ui.Button()
-        #Call back will return a monster and also delete embed
-
-    choice_embed = discord.Embed(title = 'You come across a clearing' , description = f"") # Make it a list with A/B description on buttons
-
-    return choice_embed
 
 
 @bot.command()
@@ -211,20 +195,12 @@ async def rpg(called_channel):
         # Perhaps think of respites as town areas which can then lock the player into and adventuring state and a safe state where they can buy and sell equipment
 
 
-
-
-
-
-
 @bot.command()
 async def logout(called_channel):
 
-    logout_embed = discord.Embed(title = 'Thank you for playing')
+    logout_embed = discord.Embed(title = 'Thank you for playing!', description="You've been logged out")
+    await called_channel.send(embed = logout_embed)
 
-
-
-
-    pass
 
 
 bot.run(os.environ["DISCORD_TOKEN_BOT"])
