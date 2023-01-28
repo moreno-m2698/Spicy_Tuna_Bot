@@ -10,12 +10,7 @@ import psycopg2
 from rpgFiles.Classes.monsterLogic import Monster
 from rpgFiles.gameLogic import discord_encounter
 
-class RpgPlayer(discord.User): # This is the shell that will allow us to run the game logic and store information
-    pass
-
-
-
-
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 myIntents = discord.Intents.default()
 myIntents.message_content = True
@@ -68,9 +63,6 @@ async def login(context_channel): #This command creates a new session as well as
     view.add_item(no_button)
     await context_channel.send(embed=discord.Embed(title="Let's begin your journey", description="Already have an account?"),  view = view)
 
-
-
-
 class AccountModal(discord.ui.Modal):
     def __init__(self, *, title: str = "Create a Account") -> None:
         super().__init__(title=title)
@@ -88,28 +80,6 @@ class AccountModal(discord.ui.Modal):
     
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-class MyModal(discord.ui.Modal):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs, title  = "Modal via Buttom")
-
-        self.add_item(discord.ui.TextInput(label="Short Input"))
-        self.add_item(discord.ui.TextInput(label="Long Input", style=discord.TextStyle.long))
-        
-
-    async def callback(self, interaction: discord.Interaction):
-        embed = discord.Embed(title="Modal Results")
-        embed.add_field(name="Short Input", value=self.children[0].value)
-        embed.add_field(name="Long Input", value=self.children[1].value)
-        await interaction.response.send_message(embeds=[embed])
-
-class MyView(discord.ui.View):
-    @discord.ui.button(label = "Login")
-    async def button_callback(self, interaction, button):
-        await interaction.response.send_modal(MyModal())
-
-
-#------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 class Class_Select_Embed(discord.Embed):
     def __init__(self):
         super().__init__(title='Choose your class!')
@@ -117,7 +87,6 @@ class Class_Select_Embed(discord.Embed):
         self.add_field(name="Paladin", value = "Paladin",inline=False)
         self.add_field(name='Mage', value="Mage", inline =False)
         self.add_field(name = "Undead", value = "Undead", inline=False)
-
 
 @bot.command()
 async def classes(context_channel): # This is what allows the player to choose there class when initially starting an account
@@ -161,38 +130,48 @@ async def hunt(context_channel): #This is what will allow you to hunt monsters
 
     options = discord_encounter()
     monster_select_embed=discord.Embed(title = "You come across a large clearing", description = "You come across two monsters!")
-    monster_select_embed.add_field(name = options[0].name, value = 1)
-    monster_select_embed.add_field(name = options[1].name, value = 2)
-    option_select=discord.ui.Select(placeholder="Which do you choose?", min_values=1, max_values=1, options = [discord.SelectOption(label = options[0].name, value = 1), discord.SelectOption(label = options[1].name, value = 2)])
-    async def option_select_callback(): # This will create the embed that uses the information decided by the player to fight the monster
-        pass
-    
-    
+    monster_select_embed.add_field(name = options[0].name, value = options[0].name)
+    monster_select_embed.add_field(name = options[1].name, value = options[1].name)
+    option_select=discord.ui.Select(placeholder="Which do you choose?", min_values=1, max_values=1, options = [discord.SelectOption(label = options[0].name, value = options[0].name), discord.SelectOption(label = options[1].name, value = options[1].name)])
+    async def option_select_callback(interaction): # This will create the embed that uses the information decided by the player to fight the monster
+        await interaction.response.edit_message(content = "This is where the magic happens!", embed = None, view = BattleView(option_select.values[0]))
+
+    option_select.callback = option_select_callback
     view = discord.ui.View()
     view.add_item(option_select)
 
     await context_channel.send(embed = monster_select_embed, view = view)
 
 
-@bot.command()
-async def rpg(called_channel):
-    monster = None # use something to scan the monster and see if it exists
-    if monster == None:
-        pass
-        # we will create a respite command, but the respite in nonencounters will be the same thing and the 3 button will call to it
 
-    attackbutton = discord.ui.Button() # make this look like a attack button
+class BattleView(discord.ui.View):
+    def __init__(self, enemy):
+        super().__init__(timeout=180)
+        self.enemy = enemy
+        attack = discord.SelectOption(label = "Attack", value=1)
+        skills = discord.SelectOption(label = "Specials", value = 2)
+        player_inventory = discord.SelectOption(label = "Inventory", value = 3)
+        run_away = discord.SelectOption(label = "Run away", value = 4)
+        choices = discord.ui.Select(placeholder="What will you do?", min_values=1, max_values=1, options = [attack, skills, player_inventory, run_away] )
+        async def player_choices_callback(interaction):
+            if int(choices.values[0]) == 1:
+                await interaction.response.edit_message(content = "You attacked!", view = None, embed = FightEmbed(interaction.user,self.enemy))
+        
+        choices.callback = player_choices_callback
+        self.add_item(choices)
 
-    skillbutton = discord.ui.Button()
-    # This button will take u to a new embed with a drop down menu for the input
+class FightEmbed(discord.Embed):
+    def __init__(self, user, enemy):
 
-    invbutton = discord.ui.Button()
-    # This button will be similar to the skills button 
-            # Honestly can probably get both to use the same parent object
+        title = f"Battle between {user} and {enemy}"
+        description = f"Your health: \n{enemy}'s health:\n--------------------------------"
+        super().__init__(title = title,description=description)
 
-    escapebutton = discord.ui.Button()
-    # This button will delete the monster encounter and put u in the respite zone
-        # Perhaps think of respites as town areas which can then lock the player into and adventuring state and a safe state where they can buy and sell equipment
+
+    pass
+
+        
+
 
 
 @bot.command()
@@ -200,6 +179,11 @@ async def logout(called_channel):
 
     logout_embed = discord.Embed(title = 'Thank you for playing!', description="You've been logged out")
     await called_channel.send(embed = logout_embed)
+
+# class RpgPlayer(discord.User): # This is the shell that will allow us to run the game logic and store information
+#     def __init__(self, *, state: ConnectionState, data: Union[UserPayload, PartialUserPayload]) -> None:
+#         super().__init__(state=state, data)
+#     pass
 
 
 
